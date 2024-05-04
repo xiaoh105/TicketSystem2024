@@ -1,15 +1,3 @@
-//===----------------------------------------------------------------------===//
-//
-//                         BusTub
-//
-// lru_k_replacer.h
-//
-// Identification: src/include/buffer/lru_k_replacer.h
-//
-// Copyright (c) 2015-2022, Carnegie Mellon University Database Group
-//
-//===----------------------------------------------------------------------===//
-
 #pragma once
 #include <iostream>
 
@@ -19,8 +7,6 @@
 
 #include "common/config.h"
 #include "common/locks.h"
-
-namespace bustub {
 
   static const size_t INF = SIZE_MAX;
 
@@ -149,5 +135,3 @@ namespace bustub {
     const size_t k_;
     SpinLock latch_;
   };
-
-}  // namespace bustub

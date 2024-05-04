@@ -1,5 +1,4 @@
-#ifndef TICKETSYSTEM_DISK_MANAGER_H
-#define TICKETSYSTEM_DISK_MANAGER_H
+#pragma once
 
 #include <fstream>
 #include <mutex>
@@ -26,5 +25,3 @@ class DiskManager {
   std::mutex io_latch_;
   std::fstream io_;
 };
-
-#endif //TICKETSYSTEM_DISK_MANAGER_H
