@@ -28,4 +28,11 @@ add_executable(TicketSystem src/main.cpp
         src/include/common/stl/vector.hpp
         src/buffer/buffer_pool_proxy.cpp
         src/storage/disk/disk_manager.cpp
-        src/storage/page/page_guard.cpp)
+        src/storage/page/page_guard.cpp
+        src/buffer/buffer_pool_manager.cpp
+        src/include/storage/page/b_plus_tree_header_page.h
+        src/include/storage/page/b_plus_tree_page.h
+        src/include/storage/page/b_plus_tree_internal_page.h
+        src/include/storage/page/b_plus_tree_leaf_page.h
+        src/storage/page/b_plus_tree_internal_page.cpp
+        src/storage/page/b_plus_tree_leaf_page.cpp)
