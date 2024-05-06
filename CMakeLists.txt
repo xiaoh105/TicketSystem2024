@@ -20,4 +20,12 @@ add_executable(TicketSystem src/main.cpp
         src/include/common/config.h
         src/include/buffer/replacer.h
         src/include/buffer/buffer_pool_manager.h
-        src/include/buffer/buffer_pool_proxy.h)
+        src/include/buffer/buffer_pool_proxy.h
+        src/include/common/stl/pointers.hpp
+        src/include/common/stl/pair.hpp
+        src/include/common/stl/map.hpp
+        src/include/common/stl/list.hpp
+        src/include/common/stl/vector.hpp
+        src/buffer/buffer_pool_proxy.cpp
+        src/storage/disk/disk_manager.cpp
+        src/storage/page/page_guard.cpp)

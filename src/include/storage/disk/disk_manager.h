@@ -1,7 +1,9 @@
 #pragma once
 
 #include <fstream>
+#include <string>
 #include <mutex>
+
 #include "common/config.h"
 
 /**
@@ -16,7 +18,7 @@ class DiskManager {
    * Create a disk manager according to file_name.
    * If the file exists, open it; Otherwise, create and open it.
    */
-  DiskManager(const std::string &file_name);
+  DiskManager(const std::string &file_name); // NOLINT
   ~DiskManager();
   void ReadPage(page_id_t page_id, char *data);
   void WritePage(page_id_t page_id, const char *data);

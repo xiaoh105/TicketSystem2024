@@ -1,13 +1,15 @@
 #pragma once
 
-#include <list>
-#include <memory>
-#include <mutex>  // NOLINT
-#include <unordered_map>
+#include <mutex>
 #include <condition_variable>
 
 #include "buffer/replacer.h"
+#include "buffer_pool_proxy.h"
 #include "common/config.h"
+#include "common/stl/pair.hpp"
+#include "common/stl/map.hpp"
+#include "common/stl/list.hpp"
+#include "common/stl/pointers.hpp"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
@@ -114,7 +116,7 @@ public:
    * @param access_type type of access to the page, only needed for leaderboard tests.
    * @return false if the page is not in the page table or its pin count is <= 0 before this call, true otherwise
    */
-  auto UnpinPage(page_id_t page_id, bool is_dirty, AccessType access_type = AccessType::Unknown) -> bool;
+  auto UnpinPage(page_id_t page_id, bool is_dirty) -> bool;
 
   /**
    * @brief Flush the target page to disk. Warn: Must not change page information!!!
@@ -156,11 +158,11 @@ private:
   /** Pointer to the disk manager. */
   BufferPoolProxy *disk_proxy_;
   /** Page table for keeping track of buffer pool pages. */
-  std::unordered_map<page_id_t, frame_id_t> page_table_;
+  map<page_id_t, frame_id_t> page_table_;
   /** Replacer to find unpinned pages for replacement. */
-  std::unique_ptr<Replacer> replacer_;
+  unique_ptr<LRUKReplacer> replacer_;
   /** List of free frames that don't have any pages on them. */
-  std::list<frame_id_t> free_list_;
+  list<frame_id_t> free_list_;
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   SpinLock *page_lock_;
   SpinLock latch_;
