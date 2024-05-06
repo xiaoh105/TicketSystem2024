@@ -3,10 +3,6 @@
 #include <utility>
 
 /**
- * This file implements the smart pointers needed for the project.
- */
-
-/**
  * A simple self-implemented class template unique_ptr (without deleter).
  * @tparam T The typename of the pointer.
  */

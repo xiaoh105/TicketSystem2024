@@ -6,6 +6,9 @@ DiskManager::DiskManager(const std::string &file_name) {
   io_.open(file_name);
   if (!io_) {
     io_.open(file_name, std::ios::out);
+    io_.close();
+    io_.open(file_name);
+    first_flag_ = true;
   }
 }
 

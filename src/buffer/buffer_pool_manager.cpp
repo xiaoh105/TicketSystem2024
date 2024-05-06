@@ -13,12 +13,13 @@
 #include "buffer/buffer_pool_manager.h"
 #include "storage/page/page_guard.h"
 
-BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k)
-  : pool_size_(pool_size), disk_proxy_(new BufferPoolProxy(disk_manager)) {
+BufferPoolManager::BufferPoolManager(size_t pool_size, unique_ptr<DiskManager> disk_manager, size_t replacer_k)
+  : pool_size_(pool_size), disk_proxy_(make_unique<BufferPoolProxy>(std::move(disk_manager))) {
   // we allocate a consecutive memory space for the buffer pool
   pages_ = new Page[pool_size_];
   page_lock_ = new SpinLock[pool_size];
   replacer_ = make_unique<LRUKReplacer>(pool_size, replacer_k);
+  first_flag_ = disk_proxy_->IsFirstVisit();
 
   // Initially, every page is in the free list.
   for (size_t i = 0; i < pool_size_; ++i) {
@@ -29,7 +30,6 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, DiskManager *disk_manager
 BufferPoolManager::~BufferPoolManager() {
   delete[] pages_;
   delete[] page_lock_;
-  delete disk_proxy_;
 }
 
 auto BufferPoolManager::NewPage(page_id_t *page_id) -> Page * {

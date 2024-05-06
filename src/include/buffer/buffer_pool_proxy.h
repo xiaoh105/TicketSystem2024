@@ -1,12 +1,12 @@
 #pragma once
 
-#include <memory>
 #include <condition_variable>
 
 #include "buffer/replacer.h"
 #include "common/config.h"
 #include "common/stl/list.hpp"
 #include "common/stl/map.hpp"
+#include "common/stl/pointers.hpp"
 #include "storage/disk/disk_manager.h"
 #include "storage/page/page.h"
 #include "storage/page/page_guard.h"
@@ -15,12 +15,14 @@
  * @brief A proxy that controls disk reading and writing (to maximize bandwidth).
  */
 class BufferPoolProxy {
-public:
+ public:
+  BufferPoolProxy() = delete;
+
   /**
    * Create and initialize a buffer pool proxy.
    * @param disk_manager The disk manager the proxy controls.
    */
-  explicit BufferPoolProxy(DiskManager *disk_manager);
+  BufferPoolProxy(unique_ptr<DiskManager> disk_manager);
 
   /**
    * Waits until all writing is done and destroys the proxy.
@@ -54,15 +56,18 @@ public:
    */
   void WritePage(page_id_t page_id, const char *page_data);
 
-private:
+  [[nodiscard]] bool IsFirstVisit() const { return first_flag_; }
+
+ private:
   size_t version_{0};
   SpinLock latch_;
   std::thread write_thread_;
-  DiskManager *disk_manager_;
+  unique_ptr<DiskManager> disk_manager_;
   map<page_id_t, const char *> request_page_;
   map<page_id_t, size_t> request_version_;
   std::mutex write_signal_latch_;
   std::condition_variable write_signal_;
   std::atomic_bool end_signal_{false};
   char write_temp_[BUSTUB_PAGE_SIZE]{};
+  bool first_flag_{false};
 };

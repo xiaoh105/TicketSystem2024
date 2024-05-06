@@ -22,8 +22,10 @@ class DiskManager {
   ~DiskManager();
   void ReadPage(page_id_t page_id, char *data);
   void WritePage(page_id_t page_id, const char *data);
+  bool IsFirstVisit() const { return first_flag_; }
 
  private:
   std::mutex io_latch_;
   std::fstream io_;
+  bool first_flag_{false};
 };

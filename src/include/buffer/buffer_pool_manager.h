@@ -4,7 +4,7 @@
 #include <condition_variable>
 
 #include "buffer/replacer.h"
-#include "buffer_pool_proxy.h"
+#include "buffer/buffer_pool_proxy.h"
 #include "common/config.h"
 #include "common/stl/pair.hpp"
 #include "common/stl/map.hpp"
@@ -28,7 +28,7 @@ public:
    * @param replacer_k the lookback constant k for the LRU-K replacer
    * @param log_manager the log manager (for testing only: nullptr = disable logging). Please ignore this for P1.
    */
-  BufferPoolManager(size_t pool_size, DiskManager *disk_manager, size_t replacer_k = LRUK_REPLACER_K);
+  BufferPoolManager(size_t pool_size, unique_ptr<DiskManager> disk_manager, size_t replacer_k = LRUK_REPLACER_K);
 
   /**
    * @brief Destroy an existing BufferPoolManager.
@@ -147,6 +147,8 @@ public:
    */
   auto DeletePage(page_id_t page_id) -> bool;
 
+  auto IsFirstVisit() -> bool { return first_flag_; }
+
 private:
   /** Number of pages in the buffer pool. */
   const size_t pool_size_;
@@ -156,7 +158,7 @@ private:
   /** Array of buffer pool pages. */
   Page *pages_;
   /** Pointer to the disk manager. */
-  BufferPoolProxy *disk_proxy_;
+  unique_ptr<BufferPoolProxy> disk_proxy_;
   /** Page table for keeping track of buffer pool pages. */
   map<page_id_t, frame_id_t> page_table_;
   /** Replacer to find unpinned pages for replacement. */
@@ -166,6 +168,7 @@ private:
   /** This latch protects shared data structures. We recommend updating this comment to describe what it protects. */
   SpinLock *page_lock_;
   SpinLock latch_;
+  bool first_flag_{false};
 
   /**
    * @brief Allocate a page on disk. Caller should acquire the latch before calling this function.

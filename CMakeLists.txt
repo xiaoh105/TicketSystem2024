@@ -5,13 +5,13 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories("src/include")
 
-include(FetchContent)
-FetchContent_Declare(
-        googletest
-        URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
+# include(FetchContent)
+# FetchContent_Declare(
+#         googletest
+#         URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+# )
 
-FetchContent_MakeAvailable(googletest)
+# FetchContent_MakeAvailable(googletest)
 
 add_executable(TicketSystem src/main.cpp
         src/common/locks.cpp
@@ -35,4 +35,7 @@ add_executable(TicketSystem src/main.cpp
         src/include/storage/page/b_plus_tree_internal_page.h
         src/include/storage/page/b_plus_tree_leaf_page.h
         src/storage/page/b_plus_tree_internal_page.cpp
-        src/storage/page/b_plus_tree_leaf_page.cpp)
+        src/storage/page/b_plus_tree_leaf_page.cpp
+        src/include/storage/index/b_plus_tree.h
+        src/include/storage/index/index_iterator.h
+        src/storage/index/b_plus_tree.cpp)

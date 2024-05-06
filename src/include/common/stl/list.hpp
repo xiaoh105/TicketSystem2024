@@ -224,11 +224,11 @@ public:
    * access the first / last element
    * throw container_is_empty when the container is empty.
    */
-  const T &front() const {
+  T &front() const {
     if (!sz) throw std::exception();
     return head->next->val;
   }
-  const T &back() const {
+  T &back() const {
     if (!sz) throw std::exception();
     return tail->prev->val;
   }
@@ -304,6 +304,10 @@ public:
     ++sz;
     insert(tail, new node(value));
   }
+  void push_back(T &&value) {
+    ++sz;
+    insert(tail, new node(std::forward<T>(value)));
+  }
   /**
    * removes the last element
    * throw when the container is empty.
@@ -321,6 +325,10 @@ public:
   void push_front(const T &value) {
     ++sz;
     insert(head->next, new node(value));
+  }
+  void push_front(T &&value) {
+    ++sz;
+    insert(head->next, new node(std::forward<T>(value)));
   }
   /**
    * removes the first element.

@@ -23,4 +23,21 @@ class SpinLock {
   std::atomic_flag lock_flag_;
 };
 
+/**
+ * @brief A simple reader-writer spinlock. Writer-preferred strategy is implemented.
+ */
+class ReadWriteSpinLock {
+ public:
+  ReadWriteSpinLock();
+  ~ReadWriteSpinLock() = default;
+  void lock();
+  void unlock();
+  void lock_shared();
+  void unlock_shared();
+
+ private:
+  std::atomic_int counter_;
+  std::atomic_int writer_counter_;
+};
+
 #endif //TICKETSYSTEM_LOCKS_H

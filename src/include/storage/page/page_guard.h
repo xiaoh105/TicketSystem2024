@@ -52,7 +52,7 @@ public:
    */
   ~BasicPageGuard();
 
-  auto PageId() const -> page_id_t { return page_->GetPageId(); }
+  [[nodiscard]] auto PageId() const -> page_id_t { return page_->GetPageId(); }
 
   auto GetData() -> const char * { return page_->GetData(); }
 
@@ -122,7 +122,7 @@ public:
    */
   ~ReadPageGuard();
 
-  auto PageId() const -> page_id_t { return guard_.PageId(); }
+  [[nodiscard]] auto PageId() const -> page_id_t { return guard_.PageId(); }
 
   auto GetData() -> const char * { return guard_.GetData(); }
 

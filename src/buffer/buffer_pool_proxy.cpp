@@ -2,8 +2,10 @@
 
 #include "buffer/buffer_pool_proxy.h"
 
-BufferPoolProxy::BufferPoolProxy(DiskManager *disk_manager) : disk_manager_(disk_manager) {
+BufferPoolProxy::BufferPoolProxy(unique_ptr<DiskManager> disk_manager)
+: disk_manager_(std::move(disk_manager)) {
   write_thread_ = std::thread(&BufferPoolProxy::AsyncWrite, this);
+  first_flag_ = disk_manager_->IsFirstVisit();
 }
 
 BufferPoolProxy::~BufferPoolProxy() {
