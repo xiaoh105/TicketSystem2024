@@ -1,11 +1,10 @@
 #include <iostream>
 #include <map>
-#include <functional>
 #include "common/utils.h"
 #include "storage/index/b_plus_tree.h"
 
 int main() {
-  BPlusTree<pair<unsigned long long, int>, int, std::less<>> mp(make_shared<BufferPoolManager>(256, make_unique<DiskManager>("test.txt")), std::less<>());
+  BPlusTree<pair<unsigned long long, int>, int, std::less<>> mp(make_shared<BufferPoolManager>(256, make_unique<DiskManager>("test.txt")), std::less<>(), 5, 5);
   int n;
   std::cin >> n;
   for (int i = 1; i <= n; ++i) {

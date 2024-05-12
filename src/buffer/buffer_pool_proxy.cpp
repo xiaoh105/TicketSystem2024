@@ -11,10 +11,7 @@ BufferPoolProxy::BufferPoolProxy(unique_ptr<DiskManager> disk_manager)
 BufferPoolProxy::~BufferPoolProxy() {
   end_signal_ = true;
   write_thread_.join();
-  while (!request_page_.empty()) {
-    delete[] request_page_.begin()->second;
-    request_page_.erase(request_page_.begin());
-  }
+  assert(request_page_.empty());
 }
 
 void BufferPoolProxy::AsyncWrite() {
