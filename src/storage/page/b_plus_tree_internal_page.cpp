@@ -29,38 +29,36 @@ INDEX_TEMPLATE_ARGUMENTS
 auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::UpperBound(const KeyType &key, const KeyComparator &cmp) const -> int {
   auto l = 1;
   auto r = GetSize() - 1;
-  if (cmp(array_[r].first, key) <= 0) {
+  if (array_[r].first <= key) {
     return r + 1;
   }
   while (l + 1 < r) {
     auto mid = (l + r) >> 1;
-    auto tmp = cmp(array_[mid].first, key);
-    if (tmp <= 0) {
+    if (array_[mid].first <= key) {
       l = mid;
     } else {
       r = mid;
     }
   }
-  return cmp(array_[l].first, key) > 0 ? l : r;
+  return array_[l].first > key ? l : r;
 }
 
 INDEX_TEMPLATE_ARGUMENTS
 auto B_PLUS_TREE_INTERNAL_PAGE_TYPE::LowerBound(const KeyType &key, const KeyComparator &cmp) const -> int {
   auto l = 1;
   auto r = GetSize() - 1;
-  if (cmp(array_[r].first, key) < 0) {
+  if (array_[r].first < key) {
     return r + 1;
   }
   while (l + 1 < r) {
     auto mid = (l + r) >> 1;
-    auto tmp = cmp(array_[mid].first, key);
-    if (tmp < 0) {
+    if (array_[mid].first < key) {
       l = mid;
     } else {
       r = mid;
     }
   }
-  return cmp(array_[l].first, key) >= 0 ? l : r;
+  return array_[l].first >= key ? l : r;
 }
 
 /*
@@ -77,3 +75,6 @@ INDEX_TEMPLATE_ARGUMENTS
 void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyValue(int index, const KeyType &key, const ValueType &val) {
   array_[index] = make_pair(key, val);
 }
+
+template class BPlusTreeInternalPage<int, int, std::less<>>;
+template class BPlusTreeInternalPage<pair<unsigned long long, int>, int, std::less<>>;

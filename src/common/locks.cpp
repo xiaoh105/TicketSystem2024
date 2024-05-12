@@ -45,7 +45,7 @@ void ReadWriteSpinLock::lock_shared() {
       std::this_thread::yield();
       expected = counter_.load(relaxed);
     }
-  } while (counter_.compare_exchange_weak(expected, expected + 1, acquire, relaxed));
+  } while (!counter_.compare_exchange_weak(expected, expected + 1, acquire, relaxed));
 }
 
 void ReadWriteSpinLock::unlock_shared() {

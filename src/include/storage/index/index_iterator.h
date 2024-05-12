@@ -3,6 +3,8 @@
  * For range scan of b+ tree
  */
 #pragma once
+
+#include "common/stl/pointers.hpp"
 #include "storage/page/b_plus_tree_leaf_page.h"
 
 #define INDEXITERATOR_TYPE IndexIterator<KeyType, ValueType, KeyComparator>
@@ -12,8 +14,11 @@ class IndexIterator {
 public:
   // you may define your own constructor based on your member variables
   IndexIterator();
-  IndexIterator(BufferPoolManager *bpm, ReadPageGuard guard, int index);
+  IndexIterator(shared_ptr<BufferPoolManager> bpm, ReadPageGuard guard, int index);
   ~IndexIterator();  // NOLINT
+
+  IndexIterator(IndexIterator &&other) = default;
+  IndexIterator &operator=(IndexIterator &&other) = default;
 
   auto IsEnd() -> bool;
 
@@ -29,8 +34,12 @@ public:
     return cur_guard_.PageId() != itr.cur_guard_.PageId() || index_ != itr.index_;
   }
 
+  explicit operator bool() const {
+    return static_cast<bool>(bpm_);
+  }
+
 private:
-  BufferPoolManager *bpm_;
+  shared_ptr<BufferPoolManager> bpm_;
   ReadPageGuard cur_guard_;
   int index_;
 };

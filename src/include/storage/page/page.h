@@ -3,7 +3,7 @@
 #include <shared_mutex>
 #include <cstring>
 
-#include "buffer/buffer_pool_manager.h"
+#include "common/config.h"
 
 class Page {
   friend class BufferPoolManager;

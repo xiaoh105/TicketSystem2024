@@ -39,9 +39,11 @@ void BufferPoolProxy::AsyncWrite() {
       latch_.unlock();
     } else {
       latch_.unlock();
-      empty = true;
       auto tmp = std::unique_lock(write_signal_latch_);
       write_signal_.wait_for(tmp, std::chrono::milliseconds(1));
+      latch_.lock();
+      empty = request_page_.empty();
+      latch_.unlock();
     }
     end = end_signal_;
     flag = !end || !empty;

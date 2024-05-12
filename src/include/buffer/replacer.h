@@ -7,6 +7,7 @@
 #include "common/locks.h"
 #include "common/stl/list.hpp"
 #include "common/stl/vector.hpp"
+#include "common/stl/map.hpp"
 
 static const size_t INF = SIZE_MAX;
 
@@ -137,7 +138,7 @@ class LRUKReplacer {
   auto Size() const -> size_t;
 
  private:
-  LRUKNode *node_store_;
+  map<frame_id_t, LRUKNode, std::less<>> node_store_;
   size_t current_timestamp_{0};
   size_t curr_size_{0};
   const size_t replacer_size_;

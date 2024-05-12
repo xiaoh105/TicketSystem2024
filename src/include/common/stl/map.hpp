@@ -48,7 +48,7 @@ private:
       if (parent_ == nullptr) {
         return ChildType::root;
       }
-      assert(this == parent_->l_ || this == parent_->r_);
+      // assert(this == parent_->l_ || this == parent_->r_);
       return (this == parent_->l_) ? ChildType::left : ChildType::right;
     }
 

@@ -1,4 +1,5 @@
 #include "storage/page/page_guard.h"
+#include "buffer/buffer_pool_manager.h"
 
 BasicPageGuard::BasicPageGuard(BasicPageGuard &&that) noexcept {
   bpm_ = that.bpm_;

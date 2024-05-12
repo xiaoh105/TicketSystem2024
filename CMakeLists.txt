@@ -38,4 +38,8 @@ add_executable(TicketSystem src/main.cpp
         src/storage/page/b_plus_tree_leaf_page.cpp
         src/include/storage/index/b_plus_tree.h
         src/include/storage/index/index_iterator.h
-        src/storage/index/b_plus_tree.cpp)
+        src/storage/index/b_plus_tree.cpp
+        src/buffer/replacer.cpp
+        src/storage/index/index_iterator.cpp
+        src/storage/page/b_plus_tree_page.cpp
+        src/include/common/utils.h)

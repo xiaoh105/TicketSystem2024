@@ -15,7 +15,14 @@ protected:
     node *prev, *next;
     T val;
     node(): prev(nullptr), next(nullptr), val() {}
-    node(const T &val_, node *prev_ = nullptr, node *next_ = nullptr): prev(prev_), next(next_), val(val_) {
+    explicit node(const T &val_, node *prev_ = nullptr, node *next_ = nullptr)
+    requires std::is_copy_constructible_v<T>:
+    prev(prev_), next(next_), val(val_) {
+      if (prev) { prev->next = this; }
+      if (next) { next->prev = this; }
+    }
+    explicit node(T &&val_, node *prev_ = nullptr, node *next_ = nullptr):
+      prev(prev_), next(next_), val(std::forward<T>(val_)) {
       if (prev) { prev->next = this; }
       if (next) { next->prev = this; }
     }
@@ -189,7 +196,8 @@ public:
     tail = new node();
     head->next = tail, tail->prev = head;
   }
-  list(const list &other): list() {
+  list(const list &other)
+  requires std::is_copy_constructible_v<T>: list() {
     sz = other.sz;
     for (auto it = other.cbegin(); it != other.cend(); ++it) {
       new node(*it, tail->prev, tail);
@@ -203,7 +211,7 @@ public:
       ptr = tmp;
     }
   }
-  list &operator=(const list &other) {
+  list &operator=(const list &other) requires std::is_copy_constructible_v<T> {
     if (this == &other) return *this;
     auto ptr = head;
     while (ptr) {
@@ -279,10 +287,16 @@ public:
    * return an iterator pointing to the inserted value
    * throw if the iterator is invalid
    */
-  virtual iterator insert(iterator pos, const T &value) {
+  iterator insert(iterator pos, const T &value)
+  requires std::is_copy_constructible_v<T> {
     if (!pos.ptr) throw std::exception();
     ++sz;
     return insert(pos.ptr, new node(value));
+  }
+  iterator insert(iterator pos, T &&value) {
+    if (!pos.ptr) throw std::exception();
+    ++sz;
+    return insert(pos.ptr, new node(std::forward<T>(value)));
   }
   /**
    * remove the element at pos (the end() iterator is invalid)
@@ -300,7 +314,7 @@ public:
   /**
    * adds an element to the end
    */
-  void push_back(const T &value) {
+  void push_back(const T &value) requires std::is_copy_constructible_v<T> {
     ++sz;
     insert(tail, new node(value));
   }
@@ -322,7 +336,7 @@ public:
   /**
    * inserts an element to the beginning.
    */
-  void push_front(const T &value) {
+  void push_front(const T &value) requires std::is_copy_constructible_v<T> {
     ++sz;
     insert(head->next, new node(value));
   }

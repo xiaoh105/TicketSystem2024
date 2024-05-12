@@ -40,13 +40,17 @@ class pair {
       requires pair_traits::is_both_constructible<T1, U1&, T2, U2&> :
         first(other.first), second(other.second) {}
 
+  pair(const pair &other) = default;
+
   pair(pair &&other) = default;
 
   pair &operator=(const pair &other) = default;
 
   pair &operator=(pair &&other) = default;
 
-  friend std::strong_ordering operator<=>(const pair &lhs, const pair &rhs);
+  friend bool operator==(const pair &lhs, const pair &rhs) {
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+  }
 
   T1 first;
   T2 second;
@@ -55,8 +59,8 @@ class pair {
 template <class T1, class T2>
 pair<typename std::decay<T1>::type, typename std::decay<T2>::type> make_pair(T1 &&x, T2 &&y);
 
-template <class T1, class T2>
-std::strong_ordering operator<=>(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs)
+template <class T1, class T2, class U1, class U2>
+std::strong_ordering operator<=>(const pair<T1, T2> &lhs, const pair<U1, U2> &rhs)
 requires std::three_way_comparable<T1> && std::three_way_comparable<T2> {
   return (lhs.first!=rhs.first) ? lhs.first<=>rhs.first : lhs.second <=> rhs.second;
 }
