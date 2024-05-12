@@ -32,8 +32,11 @@ int main() {
         continue;
       }
       vector<int> ret{};
-      while (!it.IsEnd() && (*it).first.first == h) {
+      while ((*it).first.first == h) {
         ret.push_back((*it).first.second);
+        if (it.IsEnd()) {
+          break;
+        }
         ++it;
       }
       if (ret.empty()) {
