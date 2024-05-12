@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories("src/include")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+
 # include(FetchContent)
 # FetchContent_Declare(
 #         googletest

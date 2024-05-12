@@ -4,6 +4,7 @@
 #include "storage/index/b_plus_tree.h"
 
 int main() {
+  std::ios::sync_with_stdio(false);
   BPlusTree<pair<unsigned long long, int>, int, std::less<>> mp(make_shared<BufferPoolManager>(256, make_unique<DiskManager>("test.txt")), std::less<>());
   int n;
   std::cin >> n;
