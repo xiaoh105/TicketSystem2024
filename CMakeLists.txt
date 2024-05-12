@@ -13,7 +13,7 @@ include_directories("src/include")
 
 # FetchContent_MakeAvailable(googletest)
 
-add_executable(TicketSystem src/main.cpp
+add_executable(code src/main.cpp
         src/common/locks.cpp
         src/include/common/locks.h
         src/include/storage/disk/disk_manager.h
