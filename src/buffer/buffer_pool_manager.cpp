@@ -1,5 +1,6 @@
 #include "buffer/buffer_pool_manager.h"
 #include "storage/page/page_guard.h"
+#include "storage/page/b_plus_tree_header_page.h"
 
 BufferPoolManager::BufferPoolManager(size_t pool_size, unique_ptr<DiskManager> disk_manager, size_t replacer_k)
   : pool_size_(pool_size), disk_proxy_(make_unique<BufferPoolProxy>(std::move(disk_manager))) {
@@ -13,9 +14,17 @@ BufferPoolManager::BufferPoolManager(size_t pool_size, unique_ptr<DiskManager> d
   for (size_t i = 0; i < pool_size_; ++i) {
     free_list_.push_back(static_cast<int>(i));
   }
+
+  if (!first_flag_) {
+    auto cur_guard = FetchPageRead(0);
+    next_page_id_ = cur_guard.As<BPlusTreeHeaderPage>()->allocate_cnt_;
+  }
 }
 
 BufferPoolManager::~BufferPoolManager() {
+  auto cur_guard = FetchPageWrite(0);
+  auto cur_page = cur_guard.AsMut<BPlusTreeHeaderPage>();
+  cur_page->allocate_cnt_ = next_page_id_;
   delete[] pages_;
   delete[] page_lock_;
 }

@@ -9,4 +9,5 @@ public:
   BPlusTreeHeaderPage(const BPlusTreeHeaderPage &other) = delete;
 
   page_id_t root_page_id_;
+  int allocate_cnt_;
 };
