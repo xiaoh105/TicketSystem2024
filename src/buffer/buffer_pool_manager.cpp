@@ -26,6 +26,7 @@ BufferPoolManager::~BufferPoolManager() {
   auto cur_page = cur_guard.AsMut<BPlusTreeHeaderPage>();
   cur_page->allocate_cnt_ = next_page_id_;
   cur_guard.Drop();
+  FlushAllPages();
   delete[] pages_;
   delete[] page_lock_;
 }

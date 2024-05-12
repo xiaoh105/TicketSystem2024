@@ -20,9 +20,7 @@ BPLUSTREE_TYPE::BPlusTree(shared_ptr<BufferPoolManager> buffer_pool_manager,
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-BPLUSTREE_TYPE::~BPlusTree() {
-  bpm_->FlushAllPages();
-}
+BPLUSTREE_TYPE::~BPlusTree() = default;
 /*
  * Helper function to decide whether current b+tree is empty
  */
