@@ -1,8 +1,5 @@
 #pragma once
 
-#include <mutex>
-#include <condition_variable>
-
 #include "buffer/replacer.h"
 #include "buffer/buffer_pool_proxy.h"
 #include "common/config.h"

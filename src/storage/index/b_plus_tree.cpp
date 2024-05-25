@@ -18,6 +18,7 @@ BPLUSTREE_TYPE::BPlusTree(shared_ptr<BufferPoolManager> buffer_pool_manager,
     auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
     root_page->root_page_id_ = INVALID_PAGE_ID;
     root_page->tuple_page_id_ = INVALID_PAGE_ID;
+    root_page->dynamic_page_id_ = INVALID_PAGE_ID;
   }
 }
 
@@ -98,10 +99,9 @@ auto BPLUSTREE_TYPE::LowerBound(const KeyType &key) -> INDEXITERATOR_TYPE {
     INDEXITERATOR_TYPE ret(bpm_, std::move(cur_guard), leaf_page->GetSize() - 1);
     if (ret.IsEnd()) {
       return {};
-    } else {
-      ++ret;
-      return std::move(ret);
     }
+    ++ret;
+    return std::move(ret);
   }
   INDEXITERATOR_TYPE ret(bpm_, std::move(cur_guard), pos);
   return std::move(ret);
@@ -596,5 +596,5 @@ void BPLUSTREE_TYPE::SetRootPageId(page_id_t id) {
   page.AsMut<BPlusTreeHeaderPage>()->root_page_id_ = id;
 }
 
-template class BPlusTree<pair<unsigned long long, int>, int, std::less<>>;
+template class BPlusTree<pair<unsigned long long, RID>, RID, std::less<>>;
 template class BPlusTree<unsigned long long, RID, std::less<>>;

@@ -80,6 +80,5 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::SetKeyValue(int index, const KeyType &key, cons
   array_[index] = make_pair(key, value);
 }
 
-template class BPlusTreeLeafPage<int, int, std::less<>>;
-template class BPlusTreeLeafPage<pair<unsigned long long, int>, int, std::less<>>;
+template class BPlusTreeLeafPage<pair<unsigned long long, RID>, RID, std::less<>>;
 template class BPlusTreeLeafPage<unsigned long long, RID, std::less<>>;

@@ -59,7 +59,7 @@ protected:
 public:
   class const_iterator;
   class iterator {
-    friend class list<T>;
+    friend class list;
     friend class const_iterator;
   public:
     iterator(): ptr(nullptr) {}

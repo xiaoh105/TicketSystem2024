@@ -2,7 +2,6 @@
 
 #include <climits>
 #include <cstddef>
-#include <iostream>
 #include <memory>
 
 /**
@@ -40,6 +39,61 @@ private:
       a = new_a;
     }
   }
+
+  void __sort(T *begin, T *end)
+  {
+    int n = static_cast<int>(end - begin);
+    if (n == 0 || n == 1) return;
+    int mid = n >> 1;
+    int n1 = mid, n2 = n - mid;
+    __sort(begin, begin + mid);
+    __sort(begin + mid, end);
+    T *tmp = new T[n];
+    int p1 = 0, p2 = 0, p = 0;
+    while (p1 < n1 || p2 < n2)
+    {
+      if (p2 == n2 || p1 < n1 && *(begin + p1) <= *(begin + mid + p2))
+      {
+        tmp[p++] = *(begin + p1);
+        ++p1;
+      }
+      else
+      {
+        tmp[p++] = *(begin + mid + p2);
+        ++p2;
+      }
+    }
+    for (int i = 0; i < n; ++i) *(begin + i) = tmp[i];
+    delete [] tmp;
+  }
+
+  void __sort(T *begin, T *end, bool(*cmp)(const T &, const T &))
+  {
+    int n = static_cast<int>(end - begin);
+    if (n == 0 || n == 1) return;
+    int mid = n >> 1;
+    int n1 = mid, n2 = n - mid;
+    __sort(begin, begin + mid, cmp);
+    __sort(begin + mid, end, cmp);
+    T *tmp = new T[n];
+    int p1 = 0, p2 = 0, p = 0;
+    while (p1 < n1 || p2 < n2)
+    {
+      if (p2 == n2 || p1 < n1 && cmp(*(begin + p1), *(begin + mid + p2)))
+      {
+        tmp[p++] = *(begin + p1);
+        ++p1;
+      }
+      else
+      {
+        tmp[p++] = *(begin + mid + p2);
+        ++p2;
+      }
+    }
+    for (int i = 0; i < n; ++i) *(begin + i) = tmp[i];
+    delete [] tmp;
+  }
+
 public:
   /**
    * a type for actions of the elements of a vector, and you should write
@@ -447,5 +501,13 @@ public:
     a[len - 1].~T();
     --len;
     Shrink();
+  }
+
+  void sort() {
+    __sort(a, a + len);
+  }
+
+  void sort(bool(&cmp)(const T &, const T &)) {
+    __sort(a, a + len, cmp);
   }
 };

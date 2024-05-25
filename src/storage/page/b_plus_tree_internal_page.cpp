@@ -75,5 +75,5 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyValue(int index, const KeyType &key, 
   array_[index] = make_pair(key, val);
 }
 
-template class BPlusTreeInternalPage<pair<unsigned long long, int>, page_id_t, std::less<>>;
+template class BPlusTreeInternalPage<pair<unsigned long long, RID>, page_id_t, std::less<>>;
 template class BPlusTreeInternalPage<unsigned long long, page_id_t, std::less<>>;

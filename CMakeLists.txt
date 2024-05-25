@@ -51,4 +51,8 @@ add_executable(code src/main.cpp
         src/include/user/user_system.h
         src/user/user_system.cpp
         src/include/executor/executor.h
-        src/executor/executor.cpp)
+        src/executor/executor.cpp
+        src/include/ticket/ticket_system.h
+        src/include/common/time.h
+        src/common/time.cpp
+        src/ticket/ticket_system.cpp)

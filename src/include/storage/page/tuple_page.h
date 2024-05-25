@@ -1,4 +1,7 @@
 #pragma once
+
+#include <string>
+
 #include "common/config.h"
 
 #define TUPLE_HEADER_SIZE 4
@@ -23,13 +26,48 @@ private:
 };
 
 template <class T>
-class LinkedTuplePage {
+class LinkedTuplePage : TuplePage<T> {
   static_assert(LINKED_TUPLE_MAX_SIZE > 0);
 public:
   LinkedTuplePage() = default;
-  int32_t GetNextPageId() const;
+  [[nodiscard]] int32_t GetNextPageId() const;
   void SetNextPageId(page_id_t id);
 
 private:
   page_id_t next_page_id_{INVALID_PAGE_ID};
+};
+
+using std::string;
+
+class DynamicTuplePage {
+ public:
+  DynamicTuplePage() = default;
+
+  int32_t Append(const string &data);
+
+  [[nodiscard]] string At(std::size_t pos) const;
+
+  [[nodiscard]] bool IsFull(const string &data) const;
+
+  template <class T>
+  bool IsFull(const T *data, std::size_t n) const {
+    return size_ + sizeof(T) * n > BUSTUB_PAGE_SIZE;
+  }
+
+  template <class T>
+  int32_t Append(const T *data, std::size_t n) {
+    auto ret = size_;
+    memcpy(data_ + size_, data, sizeof(T) * n);
+    size_ += sizeof(T) * n;
+    return ret;
+  }
+
+  template <class T>
+  void As(std::size_t pos, T *data, std::size_t n) const {
+    memcpy(data, data_ + pos, sizeof(T) * n);
+  }
+
+ private:
+  char data_[BUSTUB_PAGE_SIZE]{};
+  int32_t size_{0};
 };

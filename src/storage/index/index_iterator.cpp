@@ -46,5 +46,5 @@ auto INDEXITERATOR_TYPE::operator++() -> INDEXITERATOR_TYPE & {
   return *this;
 }
 
-template class IndexIterator<pair<unsigned long long, int>, int, std::less<>>;
+template class IndexIterator<pair<unsigned long long, RID>, RID, std::less<>>;
 template class IndexIterator<unsigned long long, RID, std::less<>>;
