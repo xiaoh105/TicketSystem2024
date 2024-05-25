@@ -64,7 +64,7 @@ public:
   ~BPlusTree();
 
   // Returns true if this B+ tree has no keys and values.
-  auto IsEmpty() const -> bool;
+  [[nodiscard]] auto IsEmpty() const -> bool;
 
   // Insert a key-value pair into this B+ tree.
   auto Insert(const KeyType &key, const ValueType &value) -> bool;

@@ -2,6 +2,7 @@
 #include <string>
 #include <functional>
 
+#include "common/rid.h"
 #include "storage/index/b_plus_tree.h"
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -16,6 +17,7 @@ BPLUSTREE_TYPE::BPlusTree(shared_ptr<BufferPoolManager> buffer_pool_manager,
     BasicPageGuard guard = bpm_->NewPageGuarded(&header_page_id_);
     auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
     root_page->root_page_id_ = INVALID_PAGE_ID;
+    root_page->tuple_page_id_ = INVALID_PAGE_ID;
   }
 }
 
@@ -594,5 +596,5 @@ void BPLUSTREE_TYPE::SetRootPageId(page_id_t id) {
   page.AsMut<BPlusTreeHeaderPage>()->root_page_id_ = id;
 }
 
-template class BPlusTree<int, int, std::less<>>;
 template class BPlusTree<pair<unsigned long long, int>, int, std::less<>>;
+template class BPlusTree<unsigned long long, RID, std::less<>>;

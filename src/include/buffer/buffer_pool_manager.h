@@ -147,7 +147,7 @@ public:
    */
   auto DeletePage(page_id_t page_id) -> bool;
 
-  auto IsFirstVisit() -> bool { return first_flag_; }
+  auto IsFirstVisit() const -> bool { return first_flag_; }
 
 private:
   /** Number of pages in the buffer pool. */

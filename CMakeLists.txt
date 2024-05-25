@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 include_directories("src/include")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 
 # include(FetchContent)
 # FetchContent_Declare(
@@ -44,4 +44,11 @@ add_executable(code src/main.cpp
         src/buffer/replacer.cpp
         src/storage/index/index_iterator.cpp
         src/storage/page/b_plus_tree_page.cpp
-        src/include/common/utils.h)
+        src/include/common/utils.h
+        src/include/storage/page/tuple_page.h
+        src/include/common/rid.h
+        src/storage/page/tuple_page.cpp
+        src/include/user/user_system.h
+        src/user/user_system.cpp
+        src/include/executor/executor.h
+        src/executor/executor.cpp)

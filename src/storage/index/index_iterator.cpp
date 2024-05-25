@@ -1,6 +1,7 @@
 /**
  * index_iterator.cpp
  */
+#include "common/rid.h"
 #include "storage/index/index_iterator.h"
 
 /*
@@ -45,5 +46,5 @@ auto INDEXITERATOR_TYPE::operator++() -> INDEXITERATOR_TYPE & {
   return *this;
 }
 
-template class IndexIterator<int, int, std::less<>>;
 template class IndexIterator<pair<unsigned long long, int>, int, std::less<>>;
+template class IndexIterator<unsigned long long, RID, std::less<>>;
