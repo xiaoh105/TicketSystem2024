@@ -1,6 +1,8 @@
 #include "common/rid.h"
 #include "storage/page/b_plus_tree_internal_page.h"
 
+#include "common/time.h"
+
 /*****************************************************************************
  * HELPER METHODS AND UTILITIES
  *****************************************************************************/
@@ -77,3 +79,4 @@ void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetKeyValue(int index, const KeyType &key, 
 
 template class BPlusTreeInternalPage<pair<unsigned long long, RID>, page_id_t, std::less<>>;
 template class BPlusTreeInternalPage<unsigned long long, page_id_t, std::less<>>;
+template class BPlusTreeInternalPage<pair<unsigned long long, Date>, page_id_t, std::less<>>;

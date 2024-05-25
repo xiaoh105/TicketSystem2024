@@ -67,6 +67,11 @@ class DynamicTuplePage {
     memcpy(data, data_ + pos, sizeof(T) * n);
   }
 
+  template <class T>
+  void Modify(std::size_t pos, T *data, std::size_t n) {
+    memcpy(data_ + pos, data, sizeof(T) * n);
+  }
+
  private:
   char data_[BUSTUB_PAGE_SIZE]{};
   int32_t size_{0};

@@ -1,3 +1,4 @@
+#include "common/time.h"
 #include "common/rid.h"
 #include "storage/page/b_plus_tree_leaf_page.h"
 
@@ -82,3 +83,4 @@ void B_PLUS_TREE_LEAF_PAGE_TYPE::SetKeyValue(int index, const KeyType &key, cons
 
 template class BPlusTreeLeafPage<pair<unsigned long long, RID>, RID, std::less<>>;
 template class BPlusTreeLeafPage<unsigned long long, RID, std::less<>>;
+template class BPlusTreeLeafPage<pair<unsigned long long, Date>, page_id_t, std::less<>>;

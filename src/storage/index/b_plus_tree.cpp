@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "common/rid.h"
+#include "common/time.h"
 #include "storage/index/b_plus_tree.h"
 
 INDEX_TEMPLATE_ARGUMENTS
@@ -598,3 +599,4 @@ void BPLUSTREE_TYPE::SetRootPageId(page_id_t id) {
 
 template class BPlusTree<pair<unsigned long long, RID>, RID, std::less<>>;
 template class BPlusTree<unsigned long long, RID, std::less<>>;
+template class BPlusTree<pair<unsigned long long, Date>, page_id_t, std::less<>>;

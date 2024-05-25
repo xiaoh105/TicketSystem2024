@@ -4,6 +4,8 @@
 #include "common/rid.h"
 #include "storage/index/index_iterator.h"
 
+#include "common/time.h"
+
 /*
  * NOTE: you can change the destructor/constructor method here
  * set your own input parameters
@@ -48,3 +50,4 @@ auto INDEXITERATOR_TYPE::operator++() -> INDEXITERATOR_TYPE & {
 
 template class IndexIterator<pair<unsigned long long, RID>, RID, std::less<>>;
 template class IndexIterator<unsigned long long, RID, std::less<>>;
+template class IndexIterator<pair<unsigned long long, Date>, page_id_t, std::less<>>;

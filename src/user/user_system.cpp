@@ -121,7 +121,7 @@ void UserSystem::ModifyProfile(std::string para[26]) {
   }
   auto cur_guard = bpm_->FetchPageWrite(user_rid[0].page_id_);
   auto cur_page = cur_guard.AsMut<TuplePage<UserProfile>>();
-  UserProfile data = cur_page->operator[](user_rid[0].pos_);
+  UserProfile &data = cur_page->operator[](user_rid[0].pos_);
   if (data.privilege_ >= it->second && cur_username != username) {
     Fail();
     return;
@@ -149,7 +149,6 @@ void UserSystem::ModifyProfile(std::string para[26]) {
     memset(data.mail_addr_, 0, sizeof(data.mail_addr_));
     mail.copy(data.mail_addr_, string::npos);
   }
-  cur_page->operator[](user_rid[0].pos_) = data;
   cout << data << endl;
 }
 

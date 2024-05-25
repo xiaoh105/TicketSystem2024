@@ -3,6 +3,7 @@
 #include "storage/page/tuple_page.h"
 
 #include "ticket/ticket_system.h"
+#include "ticket/waitlist.h"
 #include "user/user_system.h"
 
 template <class T>
@@ -72,3 +73,4 @@ string DynamicTuplePage::At(std::size_t pos) const {
 
 template class TuplePage<UserProfile>;
 template class TuplePage<TrainInfo>;
+template class LinkedTuplePage<WaitInfo>;

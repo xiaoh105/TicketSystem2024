@@ -4,14 +4,14 @@
 
 BufferPoolProxy::BufferPoolProxy(unique_ptr<DiskManager> disk_manager)
 : disk_manager_(std::move(disk_manager)) {
-  write_thread_ = std::thread(&BufferPoolProxy::AsyncWrite, this);
+  // write_thread_ = std::thread(&BufferPoolProxy::AsyncWrite, this);
   first_flag_ = disk_manager_->IsFirstVisit();
 }
 
 BufferPoolProxy::~BufferPoolProxy() {
-  end_signal_ = true;
-  write_thread_.join();
-  assert(request_page_.empty());
+  // end_signal_ = true;
+  // write_thread_.join();
+  // assert(request_page_.empty());
 }
 
 void BufferPoolProxy::AsyncWrite() {
@@ -48,18 +48,19 @@ void BufferPoolProxy::AsyncWrite() {
 }
 
 void BufferPoolProxy::ReadPage(page_id_t page_id, char *page_data_) {
-  latch_.lock();
+  /*latch_.lock();
   if (request_page_.find(page_id) != request_page_.end()) {
     memcpy(page_data_, request_page_[page_id], BUSTUB_PAGE_SIZE);
     latch_.unlock();
   } else {
     latch_.unlock();
     disk_manager_->ReadPage(page_id, page_data_);
-  }
+  }*/
+  disk_manager_->ReadPage(page_id, page_data_);
 }
 
 void BufferPoolProxy::WritePage(page_id_t page_id, const char *page_data) {
-  auto data = new char[BUSTUB_PAGE_SIZE];
+  /*auto data = new char[BUSTUB_PAGE_SIZE];
   memcpy(data, page_data, BUSTUB_PAGE_SIZE);
   latch_.lock();
   if (request_page_.find(page_id) != request_page_.end()) {
@@ -68,5 +69,6 @@ void BufferPoolProxy::WritePage(page_id_t page_id, const char *page_data) {
   request_page_[page_id] = data;
   request_version_[page_id] = ++version_;
   latch_.unlock();
-  write_signal_.notify_one();
+  write_signal_.notify_one();*/
+  disk_manager_->WritePage(page_id, page_data);
 }
