@@ -21,7 +21,7 @@ std::ostream &operator<<(std::ostream &os, const Date &date);
 std::strong_ordering operator<=>(const Date &lhs, const Date &rhs);
 
 struct Moment {
-  int8_t hour_{13};
+  int8_t hour_{25};
   int8_t minute_{61};
   Moment() = default;
   Moment(int8_t hour, int8_t minute) : hour_(hour), minute_(minute) {};
@@ -50,6 +50,7 @@ class Time {
   Time operator-(int minute) const;
   Time &operator+=(int minute);
   Time &operator-=(int minute);
+  int operator-(const Time &time) const;
   [[nodiscard]] string ToString() const;
 
  private:

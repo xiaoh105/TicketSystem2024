@@ -68,12 +68,17 @@ Time Time::operator+(int minute) const {
   minute /= 24;
 
   minute += date_.date_;
-  auto ret_date = static_cast<int8_t>(date_.month_ == 6 ? minute % 30 : minute % 31);
-  minute /= (date_.month_ == 6 ? 30 : 31);
+  auto ret_month = date_.month_;
+  if (minute >= 31 && ret_month == 6) {
+    minute -= 30;
+    ++ret_month;
+  }
+  while (minute >= 32) {
+    minute -= 31;
+    ++ret_month;
+  }
 
-  minute += date_.month_;
-  auto ret_month = static_cast<int8_t>(minute);
-  return {{ret_month, ret_date}, {ret_hour, ret_min}};
+  return {{ret_month, minute}, {ret_hour, ret_min}};
 }
 
 Time& Time::operator+=(int minute) {
@@ -95,7 +100,7 @@ Time Time::operator-(int minute) const {
     ret_hour += 24;
     --ret_date;
   }
-  if (ret_date < 0) {
+  while (ret_date < 0) {
     ret_date += (ret_month == 7 ? 30 : 31);
     --ret_month;
   }
@@ -111,5 +116,23 @@ string Time::ToString() const {
   std::ostringstream sbuf;
   sbuf << *this;
   return sbuf.str();
+}
+
+int Time::operator-(const Time& time) const {
+  int ret = 0;
+  ret += moment_.minute_ - time.moment_.minute_;
+  ret += (moment_.hour_ - time.moment_.hour_) * 60;
+  Date cur_date = date_;
+  while (cur_date < time.date_) {
+    ret += 1440;
+    ++cur_date.date_;
+    if (cur_date.date_ == 31 && cur_date.month_ == 6) {
+      cur_date = {7, 1};
+    }
+    if (cur_date.date_ == 32) {
+      cur_date = {static_cast<int8_t>(cur_date.month_ + 1), 1};
+    }
+  }
+  return ret;
 }
 

@@ -56,4 +56,6 @@ add_executable(code src/main.cpp
         src/include/common/time.h
         src/common/time.cpp
         src/ticket/ticket_system.cpp
-        src/include/ticket/waitlist.h)
+        src/include/ticket/waitlist.h
+        src/ticket/waitlist.cpp
+        src/include/ticket/order_list.h)

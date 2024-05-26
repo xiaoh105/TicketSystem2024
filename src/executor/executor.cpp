@@ -66,6 +66,8 @@ void Listen() {
       ticket_system->QueryTrain(para);
     } else if (op == "query_ticket") {
       ticket_system->QueryTicket(para);
+    } else if (op == "query_transfer") {
+      ticket_system->QueryTransfer(para);
     } else {
       std::cout << "Operation not supported" << std::endl;
     }

@@ -13,11 +13,24 @@ struct TrainInfo {
   RID prices_{}; // Type: int32_t
   RID travel_time_{}; // Type: int16_t
   RID stopover_time_{}; // Type: int16_t
-  Date start_sale_{"00-00"}, end_sale_{"00-00"};
-  Moment start_time_{"25:61"};
+  Date start_sale_{}, end_sale_{};
+  Moment start_time_{};
   int8_t station_num_{};
   char type_{};
   bool released_{false};
+};
+
+struct TrainDetailedInfo {
+  string train_id_{};
+  vector<string> stations_{};
+  int32_t seat_num_[100]{};
+  int32_t prices_[100]{};
+  int16_t travel_time_[100]{};
+  int16_t stopover_time_[100]{};
+  Date start_sale_{}, end_sale_{};
+  Moment start_time_{};
+  int8_t station_num_{};
+  char type_;
 };
 
 class TicketSystem {
@@ -50,6 +63,8 @@ class TicketSystem {
   void FetchDynamicInfo(const RID &rid, string &ret) const;
 
   RID WriteDynamicInfo(const string &data);
+
+  void FetchDetailedTrainInfo(const RID &rid, TrainDetailedInfo &info) const;
 
   template <class T>
   void FetchDynamicInfo(const RID &rid, T *ret, std::size_t n) const {

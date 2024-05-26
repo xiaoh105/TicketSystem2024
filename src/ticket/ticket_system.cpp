@@ -319,3 +319,193 @@ void TicketSystem::QueryTicket(const string para[26]) {
          << ticket_info.price_ << " " << ticket_info.seat_ << endl;
   }
 }
+
+void TicketSystem::FetchDetailedTrainInfo(const RID& rid, TrainDetailedInfo& info) const {
+  auto cur_guard = bpm_->FetchPageRead(rid.page_id_);
+  auto cur_page = cur_guard.As<TuplePage<TrainInfo>>();
+  auto brief = cur_page->At(rid.pos_);
+  info.type_ = brief.type_;
+  info.train_id_ = brief.train_id_;
+  info.start_sale_ = brief.start_sale_;
+  info.end_sale_ = brief.end_sale_;
+  info.start_time_ = brief.start_time_;
+  info.station_num_ = brief.station_num_;
+
+  auto n = info.station_num_;
+  FetchDynamicInfo(brief.prices_, info.prices_, n);
+  FetchDynamicInfo(brief.seat_num_, info.seat_num_, n);
+  FetchDynamicInfo(brief.stopover_time_, info.stopover_time_, n);
+  FetchDynamicInfo(brief.travel_time_, info.travel_time_, n);
+  string station;
+  FetchDynamicInfo(brief.stations_, station);
+  info.stations_ = SplitString(station);
+}
+
+bool OrderByTime(const TicketInfo &lhs1, const TicketInfo &lhs2,
+                 const TicketInfo &rhs1, const TicketInfo &rhs2) {
+  if (lhs2.leave_ - lhs1.leave_ + lhs2.duration_ != rhs2.leave_ - rhs1.leave_ + rhs2.duration_) {
+    return lhs2.leave_ - lhs1.leave_ + lhs2.duration_ < rhs2.leave_ - rhs1.leave_ + rhs2.duration_;
+  }
+  if (lhs1.price_ + lhs2.price_ != rhs1.price_ + rhs2.price_) {
+    return lhs1.price_ + lhs2.price_ < rhs1.price_ + rhs2.price_;
+  }
+  return lhs1.train_id_ != rhs1.train_id_ ? lhs1.train_id_ < rhs1.train_id_ :
+                                            lhs2.train_id_ < rhs2.train_id_;
+}
+
+bool OrderByPrice(const TicketInfo &lhs1, const TicketInfo &lhs2,
+                 const TicketInfo &rhs1, const TicketInfo &rhs2) {
+  if (lhs1.price_ + lhs2.price_ != rhs1.price_ + rhs2.price_) {
+    return lhs1.price_ + lhs2.price_ < rhs1.price_ + rhs2.price_;
+  }
+  if (lhs2.leave_ - lhs1.leave_ + lhs2.duration_ != rhs2.leave_ - rhs1.leave_ + rhs2.duration_) {
+    return lhs2.leave_ - lhs1.leave_ + lhs2.duration_ < rhs2.leave_ - rhs1.leave_ + rhs2.duration_;
+  }
+  return lhs1.train_id_ != rhs1.train_id_ ? lhs1.train_id_ < rhs1.train_id_ :
+                                            lhs2.train_id_ < rhs2.train_id_;
+}
+
+void TicketSystem::QueryTransfer(const string para[26]) {
+  const string &start = para['s' - 'a'];
+  const string &end = para['t' - 'a'];
+  Date date(para['d' - 'a']);
+  bool order_by_cost = (para['p' - 'a'] == "cost");
+  vector<RID> rid1;
+  vector<RID> rid2;
+  FetchTrainInfoStation(start, rid1);
+  FetchTrainInfoStation(end, rid2);
+  vector<TrainDetailedInfo> info1;
+  vector<TrainDetailedInfo> info2;
+  for (const auto &rid : rid1) {
+    TrainDetailedInfo info;
+    FetchDetailedTrainInfo(rid, info);
+    info1.push_back(info);
+  }
+  for (const auto &rid : rid2) {
+    TrainDetailedInfo info;
+    FetchDetailedTrainInfo(rid, info);
+    info2.push_back(info);
+  }
+
+  TicketInfo ticket1{}, ticket2{};
+  string transfer{};
+  for (const auto &train1 : info1) {
+    int start_pos = -1;
+    for (int i = 0; i < train1.station_num_; ++i) {
+      if (train1.stations_[i] == start) {
+        start_pos = i;
+        break;
+      }
+    }
+    for (const auto &train2 : info2) {
+      if (train1.train_id_ == train2.train_id_) {
+        continue;
+      }
+      int end_pos = -1;
+      for (int i = 0; i < train2.station_num_; ++i) {
+        if (train2.stations_[i] == end) {
+          end_pos = i;
+        }
+      }
+      int transfer_pos1, transfer_pos2;
+      for (int i = start_pos + 1; i < train1.station_num_; ++i) {
+        for (int j = 0; j < end_pos; ++j) {
+          if (train1.stations_[i] != train2.stations_[j]) {
+            continue;
+          }
+          transfer_pos1 = i;
+          transfer_pos2 = j;
+          int elapsed_time1 = 0;
+          int elapsed_time2 = 0;
+          int duration1 = 0;
+          int duration2 = 0;
+          int price1 = 0;
+          int price2 = 0;
+          int max_seat1 = 100000;
+          int max_seat2 = 100000;
+          for (int k = 0; k < start_pos; ++k) {
+            elapsed_time1 += train1.travel_time_[k];
+          }
+          for (int k = 1; k <= start_pos; ++k) {
+            elapsed_time1 += train1.stopover_time_[k];
+          }
+          for (int k = start_pos; k < transfer_pos1; ++k) {
+            duration1 += train1.travel_time_[k];
+            price1 += train1.prices_[k];
+            max_seat1 = std::min(max_seat1, train1.seat_num_[k]);
+          }
+          for (int k = start_pos + 1; k < transfer_pos1; ++k) {
+            duration1 += train1.stopover_time_[k];
+          }
+          for (int k = 0; k < transfer_pos2; ++k) {
+            elapsed_time2 += train2.travel_time_[k];
+          }
+          for (int k = 1; k <= transfer_pos2; ++k) {
+            elapsed_time2 += train2.stopover_time_[k];
+          }
+          for (int k = transfer_pos2; k < end_pos; ++k) {
+            duration2 += train2.travel_time_[k];
+            price2 += train2.prices_[k];
+            max_seat2 = std::min(max_seat2, train2.seat_num_[k]);
+          }
+          for (int k = transfer_pos2 + 1; k < end_pos; ++k) {
+            duration2 += train2.stopover_time_[k];
+          }
+
+          if ((Time(train1.start_sale_, train1.start_time_) + elapsed_time1).GetDate() > date ||
+              (Time(train1.end_sale_, train1.start_time_) + elapsed_time1).GetDate() < date) {
+            continue;
+          }
+          Time start_time1 = Time(date, {0, 0}) - elapsed_time1;
+          if (start_time1.GetMoment() <= train1.start_time_) {
+            start_time1.SetMoment(train1.start_time_);
+          } else {
+            start_time1 += 1440;
+            start_time1.SetMoment(train1.start_time_);
+          }
+          Time arrive_time_1 = start_time1 + elapsed_time1 + duration1;
+          if ((Time(train2.end_sale_, train2.start_time_) + elapsed_time2).GetDate() < date) {
+            continue;
+          }
+          Time start_time2{};
+          if (arrive_time_1 - elapsed_time2 < Time(train2.start_sale_, train2.start_time_)) {
+            start_time2 = Time(train2.start_sale_, train2.start_time_);
+          } else {
+            start_time2 = arrive_time_1 - elapsed_time2;
+            if (start_time2.GetMoment() <= train2.start_time_) {
+              start_time2.SetMoment(train2.start_time_);
+            } else {
+              start_time2 += 1440;
+              start_time2.SetMoment(train2.start_time_);
+            }
+          }
+          TicketInfo cur_ticket1{train1.train_id_, start_time1 + elapsed_time1,
+                                 duration1, price1, max_seat1};
+          TicketInfo cur_ticket2{train2.train_id_, start_time2 + elapsed_time2,
+                                 duration2, price2, max_seat2};
+          if (order_by_cost && !ticket1.train_id_.empty() &&
+              OrderByPrice(ticket1, ticket2, cur_ticket1, cur_ticket2)) {
+            continue;
+          }
+          if (!order_by_cost && !ticket1.train_id_.empty() &&
+              OrderByTime(ticket1, ticket2, cur_ticket1, cur_ticket2)) {
+            continue;
+          }
+          ticket1 = cur_ticket1;
+          ticket2 = cur_ticket2;
+          transfer = train1.stations_[transfer_pos1];
+        }
+      }
+    }
+  }
+  if (ticket1.train_id_.empty()) {
+    cout << 0 << endl;
+  } else {
+    cout << ticket1.train_id_ << " " << start << " " << ticket1.leave_ << " -> "
+         << transfer << " " << ticket1.leave_ + ticket1.duration_ << " "
+         << ticket1.price_ << " " << ticket1.seat_ << endl;
+    cout << ticket2.train_id_ << " " << transfer << " " << ticket2.leave_ << " -> "
+         << end << " " << ticket2.leave_ + ticket2.duration_ << " "
+         << ticket2.price_ << " " << ticket2.seat_ << endl;
+  }
+}

@@ -2,6 +2,7 @@
 
 #include "storage/page/tuple_page.h"
 
+#include "ticket/order_list.h"
 #include "ticket/ticket_system.h"
 #include "ticket/waitlist.h"
 #include "user/user_system.h"
@@ -40,10 +41,42 @@ bool TuplePage<T>::Empty() const {
 }
 
 template <class T>
+int32_t LinkedTuplePage<T>::Append(const T& val) {
+  if (size_ == LINKED_TUPLE_MAX_SIZE) {
+    assert(false);
+  }
+  data_[size_] = val;
+  ++size_;
+  return size_ - 1;
+}
+
+template <class T>
+T& LinkedTuplePage<T>::operator[](std::size_t id) {
+  if (id >= TUPLE_MAX_SIZE) {
+    assert(false);
+  }
+  return data_[id];
+}
+
+template <class T>
+T LinkedTuplePage<T>::At(std::size_t id) const {
+  return data_[id];
+}
+
+template <class T>
+bool LinkedTuplePage<T>::Empty() const {
+  return size_ == 0;
+}
+
+template <class T>
+bool LinkedTuplePage<T>::Full() const {
+  return size_ == LINKED_TUPLE_MAX_SIZE;
+}
+
+template <class T>
 int32_t LinkedTuplePage<T>::GetNextPageId() const {
   return next_page_id_;
 }
-
 
 template <class T>
 void LinkedTuplePage<T>::SetNextPageId(page_id_t id) {
@@ -74,3 +107,4 @@ string DynamicTuplePage::At(std::size_t pos) const {
 template class TuplePage<UserProfile>;
 template class TuplePage<TrainInfo>;
 template class LinkedTuplePage<WaitInfo>;
+template class LinkedTuplePage<OrderInfo>;

@@ -14,25 +14,41 @@ struct WaitInfo {
 
 class WaitList {
 public:
-  WaitList() = delete;
-  explicit WaitList(shared_ptr<BufferPoolManager> bpm);
   class iterator {
   public:
     iterator() = default;
-    iterator(shared_ptr<BufferPoolManager> bpm, WritePageGuard guard, int pos);
+    iterator(shared_ptr<BufferPoolManager> bpm, WritePageGuard guard,
+             int pos, const string &train_id, Date date);
     iterator &operator++();
     WaitInfo &operator*();
-    [[nodiscard]] bool IsEnd() const;
+    [[nodiscard]] bool IsEnd();
+    [[nodiscard]] const string &GetTrainId() const { return train_id_; }
+    [[nodiscard]] Date GetDate() const { return date_; }
+    explicit operator bool() const { return train_id_.empty(); }
 
   private:
     shared_ptr<BufferPoolManager> bpm_;
     WritePageGuard guard_{};
-    int pos{};
+    int pos_{};
+    string train_id_{};
+    Date date_{};
   };
 
+  WaitList() = delete;
+
+  explicit WaitList(shared_ptr<BufferPoolManager> bpm);
+
+  ~WaitList();
+
+  [[nodiscard]] iterator FetchWaitlist(const string &train_id, Date date);
+
+  void Insert(const string &train_id, Date date, const string &username_,
+              int start_pos, int end_pos, int num);
+
 private:
+  void RemoveEmptyPage(const string &train_id, Date date, WritePageGuard &cur_guard);
   shared_ptr<BufferPoolManager> bpm_;
-  BPlusTree<pair<unsigned long long, Date>, page_id_t, std::less<>> index_;
+  unique_ptr<BPlusTree<pair<unsigned long long, Date>, page_id_t, std::less<>>> index_;
   page_id_t next_tuple_id_;
   int32_t timestamp_;
 };

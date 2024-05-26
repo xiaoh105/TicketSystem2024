@@ -19,6 +19,8 @@ public:
   int32_t Append(const T &val);
   [[nodiscard]] bool Full() const;
   [[nodiscard]] bool Empty() const;
+  [[nodiscard]] int32_t Size() const { return size_; }
+  [[nodiscard]] static int32_t MaxSize() { return TUPLE_MAX_SIZE; }
 
 private:
   T data_[TUPLE_MAX_SIZE]{};
@@ -26,14 +28,23 @@ private:
 };
 
 template <class T>
-class LinkedTuplePage : TuplePage<T> {
+class LinkedTuplePage {
   static_assert(LINKED_TUPLE_MAX_SIZE > 0);
 public:
   LinkedTuplePage() = default;
-  [[nodiscard]] int32_t GetNextPageId() const;
   void SetNextPageId(page_id_t id);
+  T &operator[](std::size_t id);
+  T At(std::size_t id) const;
+  int32_t Append(const T &val);
+  [[nodiscard]] bool Full() const;
+  [[nodiscard]] bool Empty() const;
+  [[nodiscard]] int32_t Size() const { return size_; }
+  [[nodiscard]] int32_t GetNextPageId() const;
+  [[nodiscard]] static int32_t MaxSize() { return LINKED_TUPLE_MAX_SIZE; }
 
 private:
+  T data_[LINKED_TUPLE_MAX_SIZE]{};
+  int32_t size_{0};
   page_id_t next_page_id_{INVALID_PAGE_ID};
 };
 
