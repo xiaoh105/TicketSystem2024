@@ -34,7 +34,7 @@ public:
   LinkedTuplePage() = default;
   void SetNextPageId(page_id_t id);
   T &operator[](std::size_t id);
-  T At(std::size_t id) const;
+  const T &At(std::size_t id) const;
   int32_t Append(const T &val);
   [[nodiscard]] bool Full() const;
   [[nodiscard]] bool Empty() const;

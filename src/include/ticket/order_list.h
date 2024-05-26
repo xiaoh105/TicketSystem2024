@@ -7,24 +7,25 @@
 
 using std::string;
 
-enum class OrderStatus : int8_t { ksuccess = 0, kpending = 1, krefuned = 2 };
+enum class OrderStatus : int8_t { ksuccess = 0, kpending = 1, krefund = 2 };
 
 struct OrderInfo {
-  int32_t price_;
-  int32_t num_;
-  int32_t timestamp_;
-  char from_[41];
-  char to_[41];
-  char train_id_[21];
-  Time leave_;
-  Time arrive_;
+  int32_t price_{};
+  int32_t num_{};
+  int32_t timestamp_{};
+  char from_[41]{};
+  char to_[41]{};
+  char train_id_[21]{};
+  OrderStatus status_{OrderStatus::ksuccess};
+  Time leave_{};
+  Time arrive_{};
 };
 
 class OrderList {
 public:
   OrderList() = delete;
   explicit OrderList(shared_ptr<BufferPoolManager> bpm);
-  void QueryOrder(const string &username);
+  void QueryOrder(const string &username) const;
   void RefundTicket(const string &username, std::size_t num);
   void QueueSucceed(const string &username, std::size_t timestamp);
   void AppendOrder(const OrderInfo &order_info);

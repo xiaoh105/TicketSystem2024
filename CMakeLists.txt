@@ -58,4 +58,5 @@ add_executable(code src/main.cpp
         src/ticket/ticket_system.cpp
         src/include/ticket/waitlist.h
         src/ticket/waitlist.cpp
-        src/include/ticket/order_list.h)
+        src/include/ticket/order_list.h
+        src/ticket/order_list.cpp)

@@ -59,7 +59,7 @@ T& LinkedTuplePage<T>::operator[](std::size_t id) {
 }
 
 template <class T>
-T LinkedTuplePage<T>::At(std::size_t id) const {
+const T &LinkedTuplePage<T>::At(std::size_t id) const {
   return data_[id];
 }
 

@@ -183,3 +183,7 @@ bool UserSystem::GetProfile(const std::string &username, UserProfile &profile) c
   profile = cur_page->At(user_rid[0].pos_);
   return true;
 }
+
+bool UserSystem::LoginStatus(const std::string &username) {
+  return login_status_.find(username) != login_status_.end();
+}

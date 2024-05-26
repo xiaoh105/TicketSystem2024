@@ -23,6 +23,7 @@ public:
   void Logout(std::string para[26]);
   void QueryProfile(std::string para[26]);
   void ModifyProfile(std::string para[26]);
+  bool LoginStatus(const std::string &username);
 
 private:
   bool GetProfile(const std::string &username, UserProfile &profile) const;
