@@ -409,6 +409,12 @@ void TrainSystem::QueryTransfer(const string para[26]) {
   vector<RID> rid2;
   FetchTrainInfoStation(start, rid1);
   FetchTrainInfoStation(end, rid2);
+  vector<DetailedTrainInfo> train_info2;
+  for (const auto &rid : rid2) {
+    DetailedTrainInfo info{};
+    FetchDetailedTrainInfo(rid, info);
+    train_info2.push_back(info);
+  }
 
   TicketInfo ticket1{}, ticket2{};
   string transfer{};
@@ -422,9 +428,7 @@ void TrainSystem::QueryTransfer(const string para[26]) {
         break;
       }
     }
-    for (auto &brief2 : rid2) {
-      DetailedTrainInfo train2{};
-      FetchDetailedTrainInfo(brief1, train2);
+    for (auto &train2 : train_info2) {
       if (train1.train_id_ == train2.train_id_) {
         continue;
       }
