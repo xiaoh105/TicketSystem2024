@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 
 #include "storage/disk/disk_manager.h"
 
@@ -22,7 +23,7 @@ void DiskManager::ReadPage(page_id_t page_id, char *data) {
   io_.seekg(offset); // NOLINT
   io_.read(data, BUSTUB_PAGE_SIZE);
   if (io_.bad()) {
-    assert("IO error when reading page.");
+    assert(false);
   }
 }
 
@@ -32,7 +33,7 @@ void DiskManager::WritePage(page_id_t page_id, const char *data) {
   io_.seekp(offset); // NOLINT
   io_.write(data, BUSTUB_PAGE_SIZE);
   if (io_.bad()) {
-    assert("IO error when writing page.");
+    assert(false);
   }
   io_.flush();
 }

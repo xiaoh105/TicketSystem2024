@@ -31,8 +31,8 @@ def compare_files(file1, file2):
     for line_no, (line1, line2) in enumerate(zip(lines1, lines2), start=1):
         if line1 != line2:
             print(f"Difference at line {line_no}:")
-            print(f"File1: {line1}")
-            print(f"File2: {line2}")
+            print(f"Your answer: {line1}")
+            print(f"Standard answer: {line2}")
             return False
 
     return True
@@ -75,6 +75,7 @@ def execute_program(program_name, input_file, output_file, expected_output, time
         program_name + " < " + input_file + " > " + output_file,
         preexec_fn=set_limits,
         cwd="temp/",
+        stderr=subprocess.PIPE,
         shell=True
     )
 
@@ -97,7 +98,7 @@ def execute_program(program_name, input_file, output_file, expected_output, time
         return False, "Time limit exceeded", max_memory_usage, ""
 
     if process.returncode != 0:
-        return False, f"Process failed with return code {process.returncode}", max_memory_usage, ""
+        return False, f"Process failed with return code {process.returncode} : {stderr.decode()}", max_memory_usage, ""
 
     if not compare_files(temp_directory + output_file, expected_output):
         # subprocess.Popen(

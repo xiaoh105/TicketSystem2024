@@ -20,13 +20,13 @@ class Page {
 
   [[nodiscard]] inline int GetPinCount() const { return pin_count_; }
 
-  inline void RLatch() { latch_.unlock_shared(); }
+  inline void RLatch() { /*latch_.unlock_shared();*/ }
 
-  inline void RUnlatch() { latch_.lock_shared(); }
+  inline void RUnlatch() { /*latch_.lock_shared();*/ }
 
-  inline void WLatch() { latch_.lock(); }
+  inline void WLatch() { /*latch_.lock();*/ }
 
-  inline void WUnlatch() { latch_.unlock(); }
+  inline void WUnlatch() { /*latch_.unlock();*/ }
 
  private:
   void ResetMemory() {

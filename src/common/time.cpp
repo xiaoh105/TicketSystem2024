@@ -78,7 +78,7 @@ Time Time::operator+(int minute) const {
     ++ret_month;
   }
 
-  return {{ret_month, minute}, {ret_hour, ret_min}};
+  return {{ret_month, static_cast<int8_t>(minute)}, {ret_hour, ret_min}};
 }
 
 Time& Time::operator+=(int minute) {
@@ -100,7 +100,7 @@ Time Time::operator-(int minute) const {
     ret_hour += 24;
     --ret_date;
   }
-  while (ret_date < 0) {
+  while (ret_date <= 0) {
     ret_date += (ret_month == 7 ? 30 : 31);
     --ret_month;
   }

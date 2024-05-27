@@ -11,6 +11,12 @@ OrderList::OrderList(shared_ptr<BufferPoolManager> bpm)
   next_tuple_id_ = cur_page->tuple_page_id_;
 }
 
+OrderList::~OrderList() {
+  auto cur_guard = bpm_->FetchPageWrite(0);
+  auto cur_page = cur_guard.AsMut<BPlusTreeHeaderPage>();
+  cur_page->tuple_page_id_ = next_tuple_id_;
+}
+
 void OrderList::QueryOrder(const string& username) const {
   using std::cout, std::endl;
   vector<page_id_t> page_id;
@@ -24,7 +30,7 @@ void OrderList::QueryOrder(const string& username) const {
   vector<OrderInfo> result;
   bool flag = true;
   while (flag) {
-    for (int i = 0; i < cur_page->Size(); ++i) {
+    for (int i = cur_page->Size() - 1; i >= 0; --i) {
       const auto &info = cur_page->At(i);
       result.push_back(info);
     }
@@ -47,8 +53,8 @@ void OrderList::QueryOrder(const string& username) const {
         status = "success"; break;
       }
     cout << "[" << status << "] " << info.train_id_ << " " << info.from_ << " "
-         << info.leave_ << " -> " << info.to_ << " " << info.arrive_ << " " << info.price_
-         << " " << info.num_ << endl;
+         << info.leave_ << " -> " << info.to_ << " " << info.arrive_ << " "
+         << info.price_ << " " << info.num_ << endl;
   }
 }
 
@@ -73,4 +79,53 @@ void OrderList::QueueSucceed(const string& username, std::size_t timestamp) {
       }
     }
   }
+}
+
+bool OrderList::RefundTicket(const string& username, std::size_t num, OrderInfo &info) {
+  vector<page_id_t> page_id;
+  index_->GetValue(StringHash(username), &page_id);
+  auto cur_guard = bpm_->FetchPageWrite(page_id[0]);
+  auto cur_page = cur_guard.As<LinkedTuplePage<OrderInfo>>();
+  while (cur_page->Size() < num) {
+    if (cur_page->GetNextPageId() == INVALID_PAGE_ID) {
+      return false;
+    }
+    num -= cur_page->Size();
+    cur_guard = bpm_->FetchPageWrite(cur_page->GetNextPageId());
+    cur_page = cur_guard.As<LinkedTuplePage<OrderInfo>>();
+  }
+  auto tmp_page = cur_guard.AsMut<LinkedTuplePage<OrderInfo>>();
+  auto size = tmp_page->Size();
+  if (tmp_page->At(size - num).status_ == OrderStatus::krefund) {
+    return false;
+  }
+  tmp_page->operator[](size - num).status_ = OrderStatus::krefund;
+  info = tmp_page->At(size - num);
+  return true;
+}
+
+void OrderList::AppendOrder(const string &username, const OrderInfo& order_info) {
+  vector<page_id_t> page_id;
+  index_->GetValue(StringHash(username), &page_id);
+  if (page_id.empty()) {
+    page_id_t new_id;
+    auto cur_guard = bpm_->NewPageGuarded(&new_id);
+    auto cur_page = cur_guard.AsMut<LinkedTuplePage<OrderInfo>>();
+    cur_page->SetNextPageId(INVALID_PAGE_ID);
+    cur_page->Append(order_info);
+    index_->Insert(StringHash(username), new_id);
+    return;
+  }
+  auto cur_guard = bpm_->FetchPageWrite(page_id[0]);
+  auto cur_page = cur_guard.AsMut<LinkedTuplePage<OrderInfo>>();
+  if (cur_page->Full()) {
+    page_id_t new_id;
+    auto new_guard = bpm_->NewPageGuarded(&new_id);
+    auto new_page = new_guard.AsMut<LinkedTuplePage<OrderInfo>>();
+    new_page->SetNextPageId(cur_guard.PageId());
+    index_->Remove(StringHash(username));
+    index_->Insert(StringHash(username), new_id);
+    cur_page = new_page;
+  }
+  cur_page->Append(order_info);
 }

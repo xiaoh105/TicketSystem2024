@@ -82,13 +82,13 @@ void WaitList::RemoveEmptyPage(const string& train_id, Date date, WritePageGuard
   } while (flag);
 }
 
-void WaitList::Insert(const string& train_id, Date date, const string& username_,
+int32_t WaitList::Insert(const string& train_id, Date date, const string& username_,
                       int start_pos, int end_pos, int num) {
-  vector<page_id_t> page_id_v;
+  vector<page_id_t> page_id_v{};
   index_->GetValue(pair(StringHash(train_id), date), &page_id_v);
   LinkedTuplePage<WaitInfo> *cur_page;
   if (page_id_v.empty()) {
-    page_id_t page_id;
+    page_id_t page_id = INVALID_PAGE_ID;
     auto cur_guard = bpm_->NewPageGuarded(&page_id);
     cur_page = cur_guard.AsMut<LinkedTuplePage<WaitInfo>>();
     cur_page->SetNextPageId(INVALID_PAGE_ID);
@@ -102,7 +102,7 @@ void WaitList::Insert(const string& train_id, Date date, const string& username_
     }
     cur_page = cur_guard.AsMut<LinkedTuplePage<WaitInfo>>();
     if (tmp_page->Full()) {
-      page_id_t page_id;
+      page_id_t page_id = INVALID_PAGE_ID;
       auto new_guard = bpm_->NewPageGuarded(&page_id);
       cur_page->SetNextPageId(page_id);
       cur_page = new_guard.AsMut<LinkedTuplePage<WaitInfo>>();
@@ -114,6 +114,7 @@ void WaitList::Insert(const string& train_id, Date date, const string& username_
   username_.copy(info.username_, string::npos);
   info.num_ = num;
   info.timestamp_ = ++timestamp_;
+  info.queue = true;
   cur_page->Append(info);
+  return info.timestamp_;
 }
-

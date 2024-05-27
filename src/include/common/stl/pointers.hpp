@@ -119,7 +119,7 @@ shared_ptr<T>::shared_ptr(const shared_ptr<T> &other)
 }
 
 template <class T>
-shared_ptr<T>::shared_ptr(shared_ptr<T> &&other) noexcept
+shared_ptr<T>::shared_ptr(shared_ptr &&other) noexcept
 : ptr_(other.ptr_), counter_(other.counter_) {
   other.ptr_ = nullptr;
   other.counter_ = nullptr;
@@ -154,6 +154,7 @@ shared_ptr<T> &shared_ptr<T>::operator=(const shared_ptr<T> &other) {
     counter_ = other.counter_;
     ++*counter_;
   }
+  return *this;
 }
 
 template <class T>
@@ -168,6 +169,7 @@ shared_ptr<T> &shared_ptr<T>::operator=(shared_ptr<T> &&other) noexcept {
     other.ptr_ = nullptr;
     other.counter_ = nullptr;
   }
+  return *this;
 }
 
 template <class T>

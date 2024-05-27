@@ -52,3 +52,4 @@ template class IndexIterator<pair<unsigned long long, RID>, RID, std::less<>>;
 template class IndexIterator<unsigned long long, RID, std::less<>>;
 template class IndexIterator<pair<unsigned long long, Date>, page_id_t, std::less<>>;
 template class IndexIterator<unsigned long long, int, std::less<>>;
+template class IndexIterator<pair<unsigned long long, Date>, RID, std::less<>>;

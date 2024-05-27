@@ -25,10 +25,11 @@ class OrderList {
 public:
   OrderList() = delete;
   explicit OrderList(shared_ptr<BufferPoolManager> bpm);
+  ~OrderList();
   void QueryOrder(const string &username) const;
-  void RefundTicket(const string &username, std::size_t num);
+  bool RefundTicket(const string &username, std::size_t num, OrderInfo &info);
   void QueueSucceed(const string &username, std::size_t timestamp);
-  void AppendOrder(const OrderInfo &order_info);
+  void AppendOrder(const string &username, const OrderInfo &order_info);
 
 private:
   shared_ptr<BufferPoolManager> bpm_;

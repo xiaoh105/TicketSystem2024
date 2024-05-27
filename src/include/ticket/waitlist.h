@@ -24,7 +24,7 @@ public:
     [[nodiscard]] bool IsEnd();
     [[nodiscard]] const string &GetTrainId() const { return train_id_; }
     [[nodiscard]] Date GetDate() const { return date_; }
-    explicit operator bool() const { return train_id_.empty(); }
+    explicit operator bool() const { return !train_id_.empty(); }
 
   private:
     shared_ptr<BufferPoolManager> bpm_;
@@ -42,8 +42,10 @@ public:
 
   [[nodiscard]] iterator FetchWaitlist(const string &train_id, Date date);
 
-  void Insert(const string &train_id, Date date, const string &username_,
+  int32_t Insert(const string &train_id, Date date, const string &username_,
               int start_pos, int end_pos, int num);
+
+  int32_t GetTimeStamp() { return ++timestamp_; };
 
 private:
   void RemoveEmptyPage(const string &train_id, Date date, WritePageGuard &cur_guard);

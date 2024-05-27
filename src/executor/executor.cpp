@@ -6,7 +6,7 @@
 #include "executor/executor.h"
 
 #include "user/user_system.h"
-#include "ticket/ticket_system.h"
+#include "ticket/train_system.h"
 
 bool Parse(string& op, string para[26]) {
   if (std::cin.eof()) {
@@ -27,15 +27,20 @@ bool Parse(string& op, string para[26]) {
   return true;
 }
 
-unique_ptr<UserSystem> user_system;
-unique_ptr<TicketSystem> ticket_system;
+shared_ptr<UserSystem> user_system;
+shared_ptr<TrainSystem> ticket_system;
 
 void Initialize() {
-  const auto user_buffer = new BufferPoolManager(300, make_unique<DiskManager>("User.dat"));
-  user_system = make_unique<UserSystem>(shared_ptr(user_buffer));
+  const auto user_buffer = new BufferPoolManager(300, make_unique<DiskManager>("user.dat"));
+  user_system = make_shared<UserSystem>(shared_ptr(user_buffer));
   const auto train_buffer = new BufferPoolManager(600, make_unique<DiskManager>("train.dat"));
   const auto station_buffer = new BufferPoolManager(300, make_unique<DiskManager>("station.dat"));
-  ticket_system = make_unique<TicketSystem>(shared_ptr(train_buffer), shared_ptr(station_buffer));
+  const auto waitlist_buffer = new BufferPoolManager(300, make_unique<DiskManager>("waitlist.dat"));
+  const auto orderlist_buffer = new BufferPoolManager(300, make_unique<DiskManager>("orderlist.dat"));
+  const auto ticket_buffer = new BufferPoolManager(600, make_unique<DiskManager>("ticket.dat"));
+  ticket_system = make_shared<TrainSystem>(shared_ptr(train_buffer), shared_ptr(station_buffer),
+                                           shared_ptr(ticket_buffer), shared_ptr(waitlist_buffer),
+                                           shared_ptr(orderlist_buffer));
 }
 
 void Listen() {
@@ -68,12 +73,19 @@ void Listen() {
       ticket_system->QueryTicket(para);
     } else if (op == "query_transfer") {
       ticket_system->QueryTransfer(para);
+    } else if (op == "buy_ticket") {
+      ticket_system->BuyTicket(para, user_system);
+    } else if (op == "query_order") {
+      ticket_system->QueryOrder(para, user_system);
+    } else if (op == "refund_ticket") {
+      ticket_system->RefundTicket(para, user_system);
     } else {
       std::cout << "Operation not supported" << std::endl;
     }
     for (auto & i : para) {
       i.clear();
     }
+    op.clear();
   }
 }
 

@@ -5,8 +5,8 @@
 BufferPoolManager::BufferPoolManager(size_t pool_size, unique_ptr<DiskManager> disk_manager, size_t replacer_k)
   : pool_size_(pool_size), disk_proxy_(make_unique<BufferPoolProxy>(std::move(disk_manager))) {
   // we allocate a consecutive memory space for the buffer pool
-  pages_ = new Page[pool_size_];
-  page_lock_ = new SpinLock[pool_size];
+  pages_ = new Page[pool_size_]{};
+  page_lock_ = new SpinLock[pool_size]{};
   replacer_ = make_unique<LRUKReplacer>(pool_size, replacer_k);
   first_flag_ = disk_proxy_->IsFirstVisit();
 

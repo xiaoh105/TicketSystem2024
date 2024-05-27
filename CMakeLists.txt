@@ -52,11 +52,13 @@ add_executable(code src/main.cpp
         src/user/user_system.cpp
         src/include/executor/executor.h
         src/executor/executor.cpp
-        src/include/ticket/ticket_system.h
+        src/include/ticket/train_system.h
         src/include/common/time.h
         src/common/time.cpp
-        src/ticket/ticket_system.cpp
+        src/ticket/train_system.cpp
         src/include/ticket/waitlist.h
         src/ticket/waitlist.cpp
         src/include/ticket/order_list.h
-        src/ticket/order_list.cpp)
+        src/ticket/order_list.cpp
+        src/include/ticket/ticket_system.h
+        src/ticket/ticket_system.cpp)

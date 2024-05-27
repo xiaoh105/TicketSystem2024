@@ -8,6 +8,7 @@
 #define TUPLE_MAX_SIZE ((BUSTUB_PAGE_SIZE - TUPLE_HEADER_SIZE) / sizeof(T))
 #define LINKED_TUPLE_HEADER_SIZE 8
 #define LINKED_TUPLE_MAX_SIZE ((BUSTUB_PAGE_SIZE - LINKED_TUPLE_HEADER_SIZE) / sizeof(T))
+#define DYNAMIC_TUPLE_HEADER_SIZE 4
 
 template <class T>
 class TuplePage {
@@ -84,6 +85,6 @@ class DynamicTuplePage {
   }
 
  private:
-  char data_[BUSTUB_PAGE_SIZE]{};
+  char data_[BUSTUB_PAGE_SIZE - DYNAMIC_TUPLE_HEADER_SIZE]{};
   int32_t size_{0};
 };
