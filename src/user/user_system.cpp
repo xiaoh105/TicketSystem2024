@@ -17,42 +17,60 @@ UserSystem::UserSystem(shared_ptr<BufferPoolManager> bpm)
   auto cur_guard = bpm_->FetchPageRead(0);
   auto cur_page = cur_guard.As<BPlusTreeHeaderPage>();
   tuple_page_id_ = cur_page->tuple_page_id_;
+  login_timestamp_ = cur_page->dynamic_page_id_;
+  if (login_timestamp_ == INVALID_PAGE_ID) {
+    login_timestamp_ = 0;
+  }
+  ++login_timestamp_;
 }
 
 UserSystem::~UserSystem() {
   auto cur_guard = bpm_->FetchPageWrite(0);
   auto cur_page = cur_guard.AsMut<BPlusTreeHeaderPage>();
   cur_page->tuple_page_id_ = tuple_page_id_;
+  cur_page->dynamic_page_id_ = login_timestamp_;
 }
 
 void UserSystem::Login(string para[26]) {
   string &cur_user = para['u' - 'a'];
   string &password = para['p' - 'a'];
-  if (login_status_.find(StringHash(cur_user)) != login_status_.end()) {
+  vector<RID> user_rid;
+  index_->GetValue(StringHash(cur_user), &user_rid);
+  if (user_rid.empty()) {
     Fail();
     return;
   }
-  UserProfile cur_profile;
-  if (GetProfile(cur_user, cur_profile)) {
-    if (strcmp(cur_profile.password_, password.c_str()) == 0) {
-      login_status_[StringHash(cur_user)] = cur_profile.privilege_;
-      Succeed();
-    } else {
-      Fail();
-    }
-  } else {
+  auto cur_guard = bpm_->FetchPageWrite(user_rid[0].page_id_);
+  auto cur_page = cur_guard.AsMut<TuplePage<UserProfile>>();
+  UserProfile &profile = cur_page->operator[](user_rid[0].pos_);
+  if (profile.login_info_ == login_timestamp_) {
     Fail();
+  } else {
+    if (profile.password_ != password) {
+      Fail();
+    } else {
+      profile.login_info_ = static_cast<int8_t>(login_timestamp_);
+      Succeed();
+    }
   }
 }
 
 void UserSystem::Logout(std::string para[26]) {
-  string &cur_user_ = para['u' - 'a'];
-  auto it = login_status_.find(StringHash(cur_user_));
-  if (it != login_status_.end()) {
-    login_status_.erase(it);
-    Succeed();
-  } else {
+  string &cur_user = para['u' - 'a'];
+  vector<RID> user_rid;
+  index_->GetValue(StringHash(cur_user), &user_rid);
+  if (user_rid.empty()) {
     Fail();
+    return;
+  }
+  auto cur_guard = bpm_->FetchPageWrite(user_rid[0].page_id_);
+  auto cur_page = cur_guard.AsMut<TuplePage<UserProfile>>();
+  UserProfile &profile = cur_page->operator[](user_rid[0].pos_);
+  if (profile.login_info_ != login_timestamp_) {
+    Fail();
+  } else {
+    profile.login_info_ = 0;
+    Succeed();
   }
 }
 
@@ -64,11 +82,13 @@ void UserSystem::AddUser(std::string para[26]) {
   const string &mail = para['m' - 'a'];
   auto privilege = static_cast<int8_t>(stoi(para['g' - 'a']));
   bool is_first = (tuple_page_id_ == INVALID_PAGE_ID);
-  if (!is_first && login_status_.find(StringHash(cur_username)) == login_status_.end()) {
+  UserProfile cur_profile{};
+  GetProfile(cur_username, cur_profile);
+  if (!is_first && cur_profile.login_info_ != login_timestamp_) {
     Fail();
     return;
   }
-  if (!is_first && login_status_[StringHash(cur_username)] <= privilege) {
+  if (!is_first && cur_profile.privilege_ <= privilege) {
     Fail();
     return;
   }
@@ -108,8 +128,9 @@ void UserSystem::AddUser(std::string para[26]) {
 void UserSystem::ModifyProfile(std::string para[26]) {
   string &cur_username = para['c' - 'a'];
   string &username = para['u' - 'a'];
-  auto it = login_status_.find(StringHash(cur_username));
-  if (it == login_status_.end()) {
+  UserProfile cur_profile{};
+  GetProfile(cur_username, cur_profile);
+  if (cur_profile.login_info_ != login_timestamp_) {
     Fail();
     return;
   }
@@ -122,7 +143,7 @@ void UserSystem::ModifyProfile(std::string para[26]) {
   auto cur_guard = bpm_->FetchPageWrite(user_rid[0].page_id_);
   auto cur_page = cur_guard.AsMut<TuplePage<UserProfile>>();
   UserProfile &data = cur_page->operator[](user_rid[0].pos_);
-  if (data.privilege_ >= it->second && cur_username != username) {
+  if (data.privilege_ >= cur_profile.privilege_ && cur_username != username) {
     Fail();
     return;
   }
@@ -130,7 +151,7 @@ void UserSystem::ModifyProfile(std::string para[26]) {
   const string &password = para['p' - 'a'];
   const string &name = para['n' - 'a'];
   const string &mail = para['m' - 'a'];
-  if (!privilege.empty() && std::stoi(privilege) >= it->second) {
+  if (!privilege.empty() && std::stoi(privilege) >= cur_profile.privilege_) {
     Fail();
     return;
   }
@@ -155,8 +176,12 @@ void UserSystem::ModifyProfile(std::string para[26]) {
 void UserSystem::QueryProfile(std::string para[26]) {
   string cur_username = para['c' - 'a'];
   string username = para['u' - 'a'];
-  auto it = login_status_.find(StringHash(cur_username));
-  if (it == login_status_.end()) {
+  UserProfile cur_profile{};
+  if (!GetProfile(cur_username, cur_profile)) {
+    Fail();
+    return;
+  }
+  if (cur_profile.login_info_ != login_timestamp_) {
     Fail();
     return;
   }
@@ -165,7 +190,7 @@ void UserSystem::QueryProfile(std::string para[26]) {
     Fail();
     return;
   }
-  if (data.privilege_ >= it->second && username != cur_username) {
+  if (data.privilege_ >= cur_profile.privilege_ && username != cur_username) {
     Fail();
     return;
   }
@@ -185,5 +210,7 @@ bool UserSystem::GetProfile(const std::string &username, UserProfile &profile) c
 }
 
 bool UserSystem::LoginStatus(const std::string &username) {
-  return login_status_.find(StringHash(username)) != login_status_.end();
+  UserProfile profile{};
+  GetProfile(username, profile);
+  return profile.login_info_ == login_timestamp_;
 }
