@@ -29,6 +29,6 @@ private:
   bool GetProfile(const std::string &username, UserProfile &profile) const;
   shared_ptr<BufferPoolManager> bpm_;
   unique_ptr<BPlusTree<unsigned long long, RID, std::less<>>> index_;
-  map<std::string, int8_t> login_status_;
+  map<unsigned long long, int8_t> login_status_;
   page_id_t tuple_page_id_;
 };

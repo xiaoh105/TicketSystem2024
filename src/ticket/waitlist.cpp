@@ -58,6 +58,7 @@ WaitList::iterator WaitList::FetchWaitlist(const string& train_id, Date date) {
   }
   auto cur_guard = bpm_->FetchPageWrite(page_id[0]);
   RemoveEmptyPage(train_id, date, cur_guard);
+
   return {bpm_, std::move(cur_guard), 0, train_id, date};
 }
 
@@ -106,6 +107,7 @@ int32_t WaitList::Insert(const string& train_id, Date date, const string& userna
       auto new_guard = bpm_->NewPageGuarded(&page_id);
       cur_page->SetNextPageId(page_id);
       cur_page = new_guard.AsMut<LinkedTuplePage<WaitInfo>>();
+      cur_page->SetNextPageId(INVALID_PAGE_ID);
     }
   }
   WaitInfo info{};

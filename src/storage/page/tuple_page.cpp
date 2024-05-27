@@ -59,7 +59,7 @@ T& LinkedTuplePage<T>::operator[](std::size_t id) {
 }
 
 template <class T>
-const T &LinkedTuplePage<T>::At(std::size_t id) const {
+T LinkedTuplePage<T>::At(std::size_t id) const {
   return data_[id];
 }
 
@@ -84,7 +84,7 @@ void LinkedTuplePage<T>::SetNextPageId(page_id_t id) {
 }
 
 bool DynamicTuplePage::IsFull(const string& data) const {
-  return size_ + data.size() + 1 > BUSTUB_PAGE_SIZE;
+  return size_ + data.size() + 1 > BUSTUB_PAGE_SIZE - DYNAMIC_TUPLE_HEADER_SIZE;
 }
 
 int32_t DynamicTuplePage::Append(const string& data) {

@@ -65,7 +65,7 @@ void OrderList::QueueSucceed(const string& username, std::size_t timestamp) {
   auto cur_page = cur_guard.As<LinkedTuplePage<OrderInfo>>();
   bool flag = true;
   while (flag) {
-    if (cur_page->At(cur_page->Size()).timestamp_ > timestamp) {
+    if (cur_page->At(0).timestamp_ > timestamp) {
       cur_guard = bpm_->FetchPageWrite(cur_page->GetNextPageId());
       cur_page = cur_guard.As<LinkedTuplePage<OrderInfo>>();
     } else {
@@ -99,8 +99,8 @@ bool OrderList::RefundTicket(const string& username, std::size_t num, OrderInfo 
   if (tmp_page->At(size - num).status_ == OrderStatus::krefund) {
     return false;
   }
-  tmp_page->operator[](size - num).status_ = OrderStatus::krefund;
   info = tmp_page->At(size - num);
+  tmp_page->operator[](size - num).status_ = OrderStatus::krefund;
   return true;
 }
 

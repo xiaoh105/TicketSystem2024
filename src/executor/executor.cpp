@@ -31,12 +31,12 @@ shared_ptr<UserSystem> user_system;
 shared_ptr<TrainSystem> ticket_system;
 
 void Initialize() {
-  const auto user_buffer = new BufferPoolManager(300, make_unique<DiskManager>("user.dat"));
+  const auto user_buffer = new BufferPoolManager(900, make_unique<DiskManager>("user.dat"));
   user_system = make_shared<UserSystem>(shared_ptr(user_buffer));
-  const auto train_buffer = new BufferPoolManager(600, make_unique<DiskManager>("train.dat"));
-  const auto station_buffer = new BufferPoolManager(300, make_unique<DiskManager>("station.dat"));
-  const auto waitlist_buffer = new BufferPoolManager(300, make_unique<DiskManager>("waitlist.dat"));
-  const auto orderlist_buffer = new BufferPoolManager(300, make_unique<DiskManager>("orderlist.dat"));
+  const auto train_buffer = new BufferPoolManager(900, make_unique<DiskManager>("train.dat"));
+  const auto station_buffer = new BufferPoolManager(600, make_unique<DiskManager>("station.dat"));
+  const auto waitlist_buffer = new BufferPoolManager(600, make_unique<DiskManager>("waitlist.dat"));
+  const auto orderlist_buffer = new BufferPoolManager(600, make_unique<DiskManager>("orderlist.dat"));
   const auto ticket_buffer = new BufferPoolManager(600, make_unique<DiskManager>("ticket.dat"));
   ticket_system = make_shared<TrainSystem>(shared_ptr(train_buffer), shared_ptr(station_buffer),
                                            shared_ptr(ticket_buffer), shared_ptr(waitlist_buffer),
@@ -44,6 +44,7 @@ void Initialize() {
 }
 
 void Listen() {
+  std::ios::sync_with_stdio(false);
   Initialize();
   string op;
   string para[26];

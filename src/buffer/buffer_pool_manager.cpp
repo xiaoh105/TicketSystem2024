@@ -197,7 +197,7 @@ auto BufferPoolManager::FetchPageBasic(page_id_t page_id) -> BasicPageGuard {
 auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
   auto ret = FetchPage(page_id);
   while (ret == nullptr) {
-    ret = FetchPage(page_id);
+    assert(false);
   }
   ret->RLatch();
   return {this, ret};
@@ -206,7 +206,7 @@ auto BufferPoolManager::FetchPageRead(page_id_t page_id) -> ReadPageGuard {
 auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
   auto ret = FetchPage(page_id);
   while (ret == nullptr) {
-    ret = FetchPage(page_id);
+    assert(false);
   }
   ret->WLatch();
   return {this, ret};
@@ -215,7 +215,7 @@ auto BufferPoolManager::FetchPageWrite(page_id_t page_id) -> WritePageGuard {
 auto BufferPoolManager::NewPageGuarded(page_id_t *page_id) -> BasicPageGuard {
   auto ret = NewPage(page_id);
   while (ret == nullptr) {
-    ret = NewPage(page_id);
+    assert(false);
   }
   return {this, ret};
 }

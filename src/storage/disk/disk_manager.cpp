@@ -11,6 +11,7 @@ DiskManager::DiskManager(const std::string &file_name) {
     io_.open(file_name);
     first_flag_ = true;
   }
+  io_.rdbuf()->pubsetbuf(nullptr, 0);
 }
 
 DiskManager::~DiskManager() {
@@ -35,5 +36,4 @@ void DiskManager::WritePage(page_id_t page_id, const char *data) {
   if (io_.bad()) {
     assert(false);
   }
-  io_.flush();
 }

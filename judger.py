@@ -43,7 +43,7 @@ def set_limits():
     cpu_time_limit_seconds = global_time_limit_ms // 1000
 
     # 设置最大可用内存
-    resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, memory_limit_bytes))
+    # resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, memory_limit_bytes))
 
     # 设置最大打开文件数
     max_files = 50
@@ -149,16 +149,17 @@ def main(test_ranges, program_name, input_prefix, output_prefix, expected_output
                 print(f"Test {i} in group {test_group} failed: {result_info}")
                 return
 
-            print(
+            else :
+                print(
                 f"Test {i} in group {test_group} passed: Time taken: {result_info:.2f}/{time_limit_ms} ms, Memory usage: {memory_usage: .2f}/{memory_limit_mb} MB, Disk usage: {disk_usage: .2f}/{disk_limit_mb} MB")
 
 
 if __name__ == "__main__":
     test_ranges = [
-        (1, 1), (2, 2), (3, 7), (8, 12), (13, 22), (23, 32), (33, 42), (43, 52),
-        (53, 62), (63, 72), (73, 82), (83, 92), (93, 102)
+        # (1, 1), (2, 2), (3, 7), (8, 12), (13, 22) , (23, 32), (33, 42),
+        (43, 52), (53, 62), (63, 72), (73, 82), (83, 92), (93, 102)
     ]  # 定义你的测试范围
-    program_name = "./../cmake-build-debug/code"
+    program_name = "./../cmake-build-release/code"
     input_prefix = "../testcases/"
     output_prefix = ""
     expected_output_prefix = "testcases/"

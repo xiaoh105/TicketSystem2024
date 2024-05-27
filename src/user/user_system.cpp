@@ -28,14 +28,14 @@ UserSystem::~UserSystem() {
 void UserSystem::Login(string para[26]) {
   string &cur_user = para['u' - 'a'];
   string &password = para['p' - 'a'];
-  if (login_status_.find(cur_user) != login_status_.end()) {
+  if (login_status_.find(StringHash(cur_user)) != login_status_.end()) {
     Fail();
     return;
   }
   UserProfile cur_profile;
   if (GetProfile(cur_user, cur_profile)) {
     if (strcmp(cur_profile.password_, password.c_str()) == 0) {
-      login_status_[cur_user] = cur_profile.privilege_;
+      login_status_[StringHash(cur_user)] = cur_profile.privilege_;
       Succeed();
     } else {
       Fail();
@@ -47,7 +47,7 @@ void UserSystem::Login(string para[26]) {
 
 void UserSystem::Logout(std::string para[26]) {
   string &cur_user_ = para['u' - 'a'];
-  auto it = login_status_.find(cur_user_);
+  auto it = login_status_.find(StringHash(cur_user_));
   if (it != login_status_.end()) {
     login_status_.erase(it);
     Succeed();
@@ -64,11 +64,11 @@ void UserSystem::AddUser(std::string para[26]) {
   const string &mail = para['m' - 'a'];
   auto privilege = static_cast<int8_t>(stoi(para['g' - 'a']));
   bool is_first = (tuple_page_id_ == INVALID_PAGE_ID);
-  if (!is_first && login_status_[cur_username] <= privilege) {
+  if (!is_first && login_status_.find(StringHash(cur_username)) == login_status_.end()) {
     Fail();
     return;
   }
-  if (!is_first && login_status_.find(cur_username) == login_status_.end()) {
+  if (!is_first && login_status_[StringHash(cur_username)] <= privilege) {
     Fail();
     return;
   }
@@ -108,7 +108,7 @@ void UserSystem::AddUser(std::string para[26]) {
 void UserSystem::ModifyProfile(std::string para[26]) {
   string &cur_username = para['c' - 'a'];
   string &username = para['u' - 'a'];
-  auto it = login_status_.find(cur_username);
+  auto it = login_status_.find(StringHash(cur_username));
   if (it == login_status_.end()) {
     Fail();
     return;
@@ -155,7 +155,7 @@ void UserSystem::ModifyProfile(std::string para[26]) {
 void UserSystem::QueryProfile(std::string para[26]) {
   string cur_username = para['c' - 'a'];
   string username = para['u' - 'a'];
-  auto it = login_status_.find(cur_username);
+  auto it = login_status_.find(StringHash(cur_username));
   if (it == login_status_.end()) {
     Fail();
     return;
@@ -185,5 +185,5 @@ bool UserSystem::GetProfile(const std::string &username, UserProfile &profile) c
 }
 
 bool UserSystem::LoginStatus(const std::string &username) {
-  return login_status_.find(username) != login_status_.end();
+  return login_status_.find(StringHash(username)) != login_status_.end();
 }

@@ -122,8 +122,8 @@ int Time::operator-(const Time& time) const {
   int ret = 0;
   ret += moment_.minute_ - time.moment_.minute_;
   ret += (moment_.hour_ - time.moment_.hour_) * 60;
-  Date cur_date = date_;
-  while (cur_date < time.date_) {
+  Date cur_date = time.date_;
+  while (cur_date < date_) {
     ret += 1440;
     ++cur_date.date_;
     if (cur_date.date_ == 31 && cur_date.month_ == 6) {
@@ -135,4 +135,3 @@ int Time::operator-(const Time& time) const {
   }
   return ret;
 }
-

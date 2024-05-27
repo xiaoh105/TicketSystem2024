@@ -82,6 +82,9 @@ void TrainSystem::AddTrain(const string para[26]) {
 
   TrainInfo data{};
   if (FetchTrainInfo(train_id, data)) {
+    delete [] prices;
+    delete [] travel_time;
+    delete [] stopover_time;
     Fail();
     return;
   }
@@ -113,6 +116,9 @@ void TrainSystem::AddTrain(const string para[26]) {
 
   index_->Insert(StringHash(train_id), train_rid);
   Succeed();
+  delete [] prices;
+  delete [] travel_time;
+  delete [] stopover_time;
 }
 
 void TrainSystem::DeleteTrain(const string para[26]) {
@@ -293,9 +299,6 @@ void TrainSystem::QueryTicket(const string para[26]) {
       cur_ticket.price_ += detailed_info.prices_[j];
       cur_ticket.seat_ = std::min(cur_ticket.seat_, detailed_info.seat_num_[j]);
     }
-    if (cur_ticket.seat_ == 0) {
-      continue;
-    }
     for (int j = start_pos + 1; j < end_pos; ++j) {
       cur_ticket.duration_ += detailed_info.stopover_time_[j];
     }
@@ -437,6 +440,7 @@ void TrainSystem::QueryTransfer(const string para[26]) {
       for (int i = 0; i < train2.station_num_; ++i) {
         if (train2.stations_[i] == end) {
           end_pos = i;
+          break;
         }
       }
       int transfer_pos1, transfer_pos2;
@@ -488,7 +492,7 @@ void TrainSystem::QueryTransfer(const string para[26]) {
             duration1 += train1.stopover_time_[k];
           }
           Time arrive_time_1 = start_time1 + elapsed_time1 + duration1;
-          if ((Time(train2.end_sale_, train2.start_time_) + elapsed_time2).GetDate() < date) {
+          if (Time(train2.end_sale_, train2.start_time_) + elapsed_time2 < arrive_time_1) {
             continue;
           }
           Time start_time2{};
@@ -512,7 +516,6 @@ void TrainSystem::QueryTransfer(const string para[26]) {
           for (int k = transfer_pos2 + 1; k < end_pos; ++k) {
             duration2 += train2.stopover_time_[k];
           }
-
 
           TicketInfo cur_ticket1{train1.train_id_, start_time1 + elapsed_time1,
                                  duration1, price1, max_seat1};
@@ -573,7 +576,12 @@ void TrainSystem::BuyTicket(const string para[26], const shared_ptr<UserSystem> 
       start_pos = i;
     } else if (info.stations_[i] == end) {
       end_pos = i;
+      break;
     }
+  }
+  if (start_pos > end_pos || start_pos == -1 || end_pos == -1) {
+    Fail();
+    return;
   }
   for (int i = 0; i < start_pos; ++i) {
     elapsed_time += info.travel_time_[i];
@@ -593,6 +601,10 @@ void TrainSystem::BuyTicket(const string para[26], const shared_ptr<UserSystem> 
     return;
   }
   ticket_system_->FetchTicket(start_time.GetDate(), brief.seat_num_, info);
+  if (num > brief.seat_num_) {
+    Fail();
+    return;
+  }
   int price = 0;
   int max_seat = 100000;
   int duration = 0;
@@ -610,7 +622,6 @@ void TrainSystem::BuyTicket(const string para[26], const shared_ptr<UserSystem> 
   train_id.copy(order.train_id_, string::npos);
   order.leave_ = start_time + elapsed_time;
   order.arrive_ = order.leave_ + duration;
-  order.timestamp_ = -1;
   order.num_ = num;
   order.price_ = price;
   if (num <= max_seat) {
@@ -620,6 +631,7 @@ void TrainSystem::BuyTicket(const string para[26], const shared_ptr<UserSystem> 
     ticket_system_->ModifyTicket(start_time.GetDate(), info);
     cout << 1ll * num * price << endl;
     order.status_ = OrderStatus::ksuccess;
+    order.timestamp_ = waitlist_->GetTimeStamp();
   } else if (queue) {
     cout << "queue" << endl;
     order.status_ = OrderStatus::kpending;
@@ -675,12 +687,24 @@ void TrainSystem::RefundTicket(const string para[26], const shared_ptr<UserSyste
     elapsed_time += info.stopover_time_[i];
   }
   Time start_time = order.leave_ - elapsed_time;
+
+  auto it = waitlist_->FetchWaitlist(info.train_id_, start_time.GetDate());
+  if (order.status_ == OrderStatus::kpending) {
+    while (it) {
+      auto &wait_info = *it;
+      if (wait_info.timestamp_ == order.timestamp_) {
+        wait_info.queue = false;
+        break;
+      }
+      ++it;
+    }
+    Succeed();
+    return;
+  }
   ticket_system_->FetchTicket(start_time.GetDate(), info.max_seat_, info);
   for (int i = start_pos; i < end_pos; ++i) {
     info.seat_num_[i] += order.num_;
   }
-
-  auto it = waitlist_->FetchWaitlist(info.train_id_, start_time.GetDate());
   while (it) {
     auto &wait_info = *it;
     if (!wait_info.queue) {
