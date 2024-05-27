@@ -31,9 +31,9 @@ shared_ptr<UserSystem> user_system;
 shared_ptr<TrainSystem> ticket_system;
 
 void Initialize() {
-  const auto user_buffer = new BufferPoolManager(180, make_unique<DiskManager>("user.dat"));
+  const auto user_buffer = new BufferPoolManager(150, make_unique<DiskManager>("user.dat"));
   user_system = make_shared<UserSystem>(shared_ptr(user_buffer));
-  const auto train_buffer = new BufferPoolManager(450, make_unique<DiskManager>("train.dat"));
+  const auto train_buffer = new BufferPoolManager(400, make_unique<DiskManager>("train.dat"));
   const auto station_buffer = new BufferPoolManager(200, make_unique<DiskManager>("station.dat"));
   const auto waitlist_buffer = new BufferPoolManager(150, make_unique<DiskManager>("waitlist.dat"));
   const auto orderlist_buffer = new BufferPoolManager(150, make_unique<DiskManager>("orderlist.dat"));
