@@ -7,7 +7,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 include_directories("src/include")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-generate=./pgo_profiles")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-use=../pgo_profiles -fprofile-correction")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 
